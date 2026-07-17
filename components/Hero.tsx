@@ -8,6 +8,7 @@ const subjects = [
   "Matemática Discreta",
   "Matemática Numérica",
   "Estadística I",
+  "Lenguajes de Programación",
 ];
 const loopSubjects = [...subjects, ...subjects];
 
