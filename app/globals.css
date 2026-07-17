@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-base: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #d4d4d8;
+  --border: #241e82;
+  --text: #16162c;
+  --text-muted: #6b7280;
+  --accent: #241e82;
+  --accent-text: #241e82;
+  --on-accent: #ffffff;
+  --bg-band: #241e82;
+  --on-band: #ffffff;
+  --on-band-muted: #c7c9f0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --bg-base: #383838;
+  --bg-card: #383838;
+  --bg-input: #e4e4e7;
+  --border: #d1d5db;
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --accent: #241e82;
+  --accent-text: #b4bcf5;
+  --on-accent: #ffffff;
+  --bg-band: #241e82;
+  --on-band: #ffffff;
+  --on-band-muted: #c7c9f0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* El reset va dentro de @layer base para NO pisar las utilidades de Tailwind
+   (p-*, pt-*, m-*…). Si se deja sin capa, anula todo el padding/margin. */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 }
 
+html {
+  scroll-behavior: smooth;
+  /* Deja espacio bajo el navbar fijo al saltar a una sección */
+  scroll-padding-top: 5rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text);
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Transición suave al alternar tema */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Respeta a quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
