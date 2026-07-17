@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
+import { useTheme } from "@/lib/theme-context";
 
 const subjects = [
   "Matemática I",
@@ -12,44 +14,21 @@ const subjects = [
 ];
 const loopSubjects = [...subjects, ...subjects];
 
-const waveLayers = [
-  { color: "var(--wave-1)", dx: 0, dy: 0, width: 34, opacity: 0.95 },
-  { color: "var(--wave-2)", dx: 22, dy: -14, width: 27, opacity: 0.7 },
-  { color: "var(--wave-3)", dx: 44, dy: -28, width: 21, opacity: 0.6 },
-  { color: "var(--wave-4)", dx: 66, dy: -42, width: 16, opacity: 0.5 },
-];
+function LogoGraphic() {
+  const { theme, mounted } = useTheme();
+  const logoSrc =
+    mounted && theme === "dark" ? "/logo-icon-dark.png" : "/logo-icon.png";
 
-const wavePath =
-  "M 430 -20 C 320 80, 380 180, 280 280 C 180 380, 340 460, 260 560";
-
-function WaveGraphic() {
   return (
-    <div className="absolute top-0 right-0 -z-10 overflow-hidden pointer-events-none hidden lg:block w-[50%] h-[540px]">
-      <svg
-        viewBox="0 0 380 560"
-        className="absolute right-0 top-0 h-full w-full"
-        preserveAspectRatio="xMaxYMin slice"
-        aria-hidden="true"
-      >
-        {waveLayers.map((layer, i) => (
-          <motion.path
-            key={i}
-            d={wavePath}
-            stroke={layer.color}
-            strokeWidth={layer.width}
-            strokeLinecap="round"
-            fill="none"
-            opacity={layer.opacity}
-            transform={`translate(${layer.dx} ${layer.dy})`}
-            animate={{ x: [0, 15, 0] }}
-            transition={{
-              duration: 10 + i * 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </svg>
+    <div className="absolute top-20 right-16 lg:right-55 -z-10 overflow-hidden pointer-events-none hidden lg:block w-[54%] h-[430px]">
+      <Image
+        src={logoSrc}
+        alt=""
+        fill
+        sizes="54vw"
+        priority
+        className="object-contain object-right-top"
+      />
     </div>
   );
 }
@@ -60,7 +39,7 @@ export default function Hero() {
       id="inicio"
       className="relative overflow-hidden pt-32 pb-16 md:pt-44 md:pb-24"
     >
-      <WaveGraphic />
+      <LogoGraphic />
 
       <div className="px-6 md:px-12 lg:px-16">
         <motion.h1
