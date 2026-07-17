@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ThemeToggle from "@/components/ThemeToggle";
+import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/lib/theme-context";
 
 const inter = Inter({
@@ -34,11 +34,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <ThemeProvider>
-          {/* Toggle temporal en la esquina — se moverá al Navbar en el
-              siguiente commit. */}
-          <div className="fixed top-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
+          <Navbar />
           {children}
         </ThemeProvider>
       </body>
