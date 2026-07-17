@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useTheme } from "@/lib/theme-context";
 
 const sections = [
   { id: "inicio", label: "Inicio" },
@@ -12,6 +13,8 @@ const sections = [
 ];
 
 export default function Navbar() {
+  const { theme, mounted } = useTheme();
+  const logoSrc = mounted && theme === "dark" ? "/logo-dark.png" : "/logo.png";
   const [active, setActive] = useState("inicio");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -50,7 +53,7 @@ export default function Navbar() {
       <nav className="flex items-center justify-between px-6 py-3 md:px-12 lg:px-16">
         <a href="#inicio" className="flex items-center gap-3">
           <Image
-            src="/logo.png"
+            src={logoSrc}
             alt="Atlantis"
             width={36}
             height={36}
