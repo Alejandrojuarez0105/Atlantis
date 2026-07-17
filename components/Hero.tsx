@@ -67,16 +67,18 @@ export default function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-6xl font-bold text-[var(--accent-text)] max-w-2xl"
+          className="text-5xl md:text-7xl font-bold text-[var(--accent-text)] max-w-2xl md:max-w-none"
         >
-          Impulsa tu éxito académico con tutorías personalizadas
+          <span className="md:whitespace-nowrap">Impulsa tu éxito académico</span>
+          <br className="hidden md:block" />
+          <span className="md:whitespace-nowrap"> con tutorías personalizadas</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mt-6 text-2xl md:text-4xl font-bold text-[var(--text)] max-w-2xl"
+          className="mt-10 text-3xl md:text-5xl font-bold text-[var(--text)] max-w-2xl"
         >
           Aprende con confianza y alcanza tus metas académicas
         </motion.p>
@@ -86,7 +88,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mt-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        className="mt-10 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
       >
         <motion.div
           className="flex w-max gap-10 whitespace-nowrap text-xl md:text-3xl font-semibold text-[var(--text-muted)]"
