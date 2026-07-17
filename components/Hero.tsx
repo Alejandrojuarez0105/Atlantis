@@ -12,22 +12,22 @@ const subjects = [
 const loopSubjects = [...subjects, ...subjects];
 
 const waveLayers = [
-  { color: "var(--wave-1)", dx: 0, dy: 0, width: 100, opacity: 0.95 },
-  { color: "var(--wave-2)", dx: 70, dy: -50, width: 80, opacity: 0.7 },
-  { color: "var(--wave-3)", dx: 140, dy: -100, width: 65, opacity: 0.6 },
-  { color: "var(--wave-4)", dx: 210, dy: -150, width: 50, opacity: 0.5 },
+  { color: "var(--wave-1)", dx: 0, dy: 0, width: 34, opacity: 0.95 },
+  { color: "var(--wave-2)", dx: 22, dy: -14, width: 27, opacity: 0.7 },
+  { color: "var(--wave-3)", dx: 44, dy: -28, width: 21, opacity: 0.6 },
+  { color: "var(--wave-4)", dx: 66, dy: -42, width: 16, opacity: 0.5 },
 ];
 
 const wavePath =
-  "M 1300 -100 C 900 150, 1050 350, 650 450 C 250 550, 400 750, -100 950";
+  "M 430 -20 C 320 80, 380 180, 280 280 C 180 380, 340 460, 260 560";
 
 function WaveGraphic() {
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none hidden lg:block">
+    <div className="absolute top-0 right-0 -z-10 overflow-hidden pointer-events-none hidden lg:block w-[50%] h-[540px]">
       <svg
-        viewBox="0 0 1200 900"
-        className="absolute right-0 top-0 h-full w-[70%]"
-        preserveAspectRatio="xMaxYMid slice"
+        viewBox="0 0 380 560"
+        className="absolute right-0 top-0 h-full w-full"
+        preserveAspectRatio="xMaxYMin slice"
         aria-hidden="true"
       >
         {waveLayers.map((layer, i) => (
@@ -40,7 +40,7 @@ function WaveGraphic() {
             fill="none"
             opacity={layer.opacity}
             transform={`translate(${layer.dx} ${layer.dy})`}
-            animate={{ x: [0, 40, 0] }}
+            animate={{ x: [0, 15, 0] }}
             transition={{
               duration: 10 + i * 3,
               repeat: Infinity,
@@ -55,7 +55,10 @@ function WaveGraphic() {
 
 export default function Hero() {
   return (
-    <section id="inicio" className="relative overflow-hidden pt-32 pb-16 md:pt-44 md:pb-24">
+    <section
+      id="inicio"
+      className="relative overflow-hidden pt-32 pb-16 md:pt-44 md:pb-24"
+    >
       <WaveGraphic />
 
       <div className="px-6 md:px-12 lg:px-16">
@@ -82,7 +85,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mt-20 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        className="mt-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
       >
         <motion.div
           className="flex w-max gap-10 whitespace-nowrap text-xl md:text-3xl font-semibold text-[var(--text-muted)]"

@@ -13,12 +13,12 @@ export default function ThemeToggle() {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="flex items-center justify-center w-9 h-9 text-[var(--text-muted)] border border-[var(--border)] rounded-lg hover:text-[var(--accent-text)] transition-colors bg-[var(--bg-card)]"
+      className="flex items-center justify-center w-12 h-12 text-[var(--text-muted)] border border-[var(--border)] rounded-lg hover:text-[var(--accent-text)] transition-colors bg-[var(--bg-card)]"
     >
       {isDark ? (
-        <Sun size={16} aria-hidden="true" />
+        <Sun size={22} aria-hidden="true" />
       ) : (
-        <Moon size={16} aria-hidden="true" />
+        <Moon size={22} aria-hidden="true" />
       )}
     </button>
   );

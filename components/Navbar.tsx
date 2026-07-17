@@ -65,12 +65,12 @@ export default function Navbar() {
           </span>
         </a>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-3">
           {sections.map(({ id, label }) => (
             <a
               key={id}
               href={`#${id}`}
-              className={`text-sm px-4 py-1.5 rounded-full transition-colors ${
+              className={`text-base px-6 py-3 rounded-full transition-colors ${
                 active === id
                   ? "bg-[var(--accent)] text-[var(--on-accent)]"
                   : "text-[var(--text-muted)] hover:text-[var(--accent-text)]"
