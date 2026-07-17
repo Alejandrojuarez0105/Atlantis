@@ -13,6 +13,10 @@
   --bg-band: #241e82;
   --on-band: #ffffff;
   --on-band-muted: #c7c9f0;
+  --wave-1: #241e82;
+  --wave-2: #9ca3af;
+  --wave-3: #7c8ce8;
+  --wave-4: #d1d5db;
 }
 
 :root[data-theme="dark"] {

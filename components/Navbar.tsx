@@ -47,7 +47,7 @@ export default function Navbar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <nav className="mx-auto max-w-6xl flex items-center justify-between px-6 py-3">
+      <nav className="flex items-center justify-between px-6 py-3 md:px-12 lg:px-16">
         <a href="#inicio" className="flex items-center gap-3">
           <Image
             src="/logo.png"
