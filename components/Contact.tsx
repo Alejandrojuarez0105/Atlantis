@@ -11,6 +11,16 @@ const paymentMethods = [
   { label: "Transferencia Bancaria", icon: "transferencia" },
 ] as const;
 
+const subjects = [
+  "Matemática I",
+  "Matemática II",
+  "Matemática Numérica",
+  "Matemática Discreta",
+  "Estadística I",
+  "Lenguajes de Programación",
+  "Marketing Estratégico y Operativo",
+];
+
 const timeSlots = (() => {
   const slots: string[] = [];
   for (let h = 10; h <= 20; h++) {
@@ -212,14 +222,22 @@ export default function Contact() {
                 className={`${inputClass()} flex-1`}
               />
             </div>
-            <input
-              type="text"
-              placeholder="Materia"
+            <select
+              aria-label="Materia"
               required
               value={form.materia}
               onChange={handleChange("materia")}
-              className={inputClass()}
-            />
+              className={`${inputClass()} ${form.materia ? "" : "!text-gray-500"}`}
+            >
+              <option value="" disabled className="text-black">
+                Materia
+              </option>
+              {subjects.map((subject) => (
+                <option key={subject} value={subject} className="text-black">
+                  {subject}
+                </option>
+              ))}
+            </select>
             <div className="flex gap-4">
               <div className="relative flex-1 rounded-lg focus-within:ring-2 focus-within:ring-[var(--accent)]">
                 <input
@@ -254,11 +272,11 @@ export default function Contact() {
                 onChange={handleChange("hora")}
                 className={`${inputClass()} flex-1 ${form.hora ? "" : "!text-gray-500"}`}
               >
-                <option value="" disabled>
+                <option value="" disabled className="text-black">
                   Hora
                 </option>
                 {timeSlots.map((slot) => (
-                  <option key={slot} value={slot}>
+                  <option key={slot} value={slot} className="text-black">
                     {slot}
                   </option>
                 ))}

@@ -4,56 +4,28 @@ import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 
-const testimonials = [
-  {
-    name: "Laura Gómez",
-    subject: "Matemática I",
-    review:
-      "Las clases me ayudaron a entender lo que en el instituto no lograba. Explicaciones claras y mucha paciencia.",
-    rating: 5,
-  },
-  {
-    name: "Marcos Ruiz",
-    subject: "Estadística I",
-    review:
-      "Aprobé el examen gracias a las tutorías. Me adaptaron el plan a mi ritmo y resolvieron todas mis dudas.",
-    rating: 5,
-  },
-  {
-    name: "Elena Torres",
-    subject: "Lenguajes de Programación",
-    review:
-      "Muy buena disposición para explicar cuantas veces hiciera falta. Se nota que quieren que entiendas de verdad.",
-    rating: 4,
-  },
-  {
-    name: "Diego Fernández",
-    subject: "Matemática Discreta",
-    review:
-      "Las sesiones son muy prácticas y se nota la experiencia del tutor. Recomendado para preparar exámenes.",
-    rating: 5,
-  },
-  {
-    name: "Carla Sánchez",
-    subject: "Matemática Numérica",
-    review:
-      "Buena comunicación por mensaje entre clases para resolver dudas puntuales. Eso marcó la diferencia.",
-    rating: 5,
-  },
-  {
-    name: "Pablo Iglesias",
-    subject: "Matemática II",
-    review:
-      "Empecé sin ninguna base y ahora llevo la asignatura al día. Muy recomendable para reforzar desde cero.",
-    rating: 4,
-  },
+type Testimonial = {
+  name: string;
+  subject: string;
+  rating: number;
+  message: string;
+};
+
+const subjects = [
+  "Matemática I",
+  "Matemática II",
+  "Matemática Numérica",
+  "Matemática Discreta",
+  "Estadística I",
+  "Lenguajes de Programación",
+  "Marketing Estratégico y Operativo",
 ];
 
-function Star({ filled }: { filled: boolean }) {
+function Star() {
   return (
     <svg
       viewBox="0 0 20 20"
-      className={`h-4 w-4 md:h-5 md:w-5 ${filled ? "text-[var(--on-band)]" : "text-[var(--on-band-muted)]"}`}
+      className="h-4 w-4 text-[var(--on-band)] md:h-5 md:w-5"
       fill="currentColor"
     >
       <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.79L10 14.9l-5.21 2.61 1-5.79-4.21-4.1 5.82-.85L10 1.5z" />
@@ -120,13 +92,24 @@ function ArrowButton({
   );
 }
 
-const emptyReviewForm = { nombre: "", materia: "", rating: 0, resena: "" };
+const emptyReviewForm = {
+  nombre: "",
+  email: "",
+  materia: "",
+  rating: 0,
+  resena: "",
+};
 
 export default function Testimonials() {
+  const [items, setItems] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [start, setStart] = useState(0);
-  const total = testimonials.length;
-  const visible = [0, 1, 2].map(
-    (offset) => testimonials[(start + offset) % total],
+  const total = items.length;
+  const visibleCount = Math.min(3, total);
+  const canPage = total > 3;
+  const visible = Array.from(
+    { length: visibleCount },
+    (_, i) => items[(start + i) % total],
   );
 
   const prev = () => setStart((s) => (s - 1 + total) % total);
@@ -136,9 +119,31 @@ export default function Testimonials() {
   const [portalMounted, setPortalMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reviewForm, setReviewForm] = useState(emptyReviewForm);
+  const [reviewStatus, setReviewStatus] = useState<
+    "idle" | "sending" | "error"
+  >("idle");
+  const [reviewError, setReviewError] = useState("");
 
   useEffect(() => {
     setPortalMounted(true);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/testimonios");
+        const data = await res.json();
+        if (active) setItems(data.testimonials ?? []);
+      } catch {
+        // deja la lista vacía; el estado vacío ya lo maneja la UI
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -155,12 +160,46 @@ export default function Testimonials() {
     setTimeout(() => {
       setSubmitted(false);
       setReviewForm(emptyReviewForm);
+      setReviewStatus("idle");
+      setReviewError("");
     }, 300);
   };
 
-  const handleReviewSubmit = (e: FormEvent) => {
+  const handleReviewSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setReviewStatus("sending");
+    setReviewError("");
+
+    try {
+      const res = await fetch("/api/testimonio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: reviewForm.nombre,
+          email: reviewForm.email,
+          subject: reviewForm.materia,
+          rating: reviewForm.rating,
+          message: reviewForm.resena,
+        }),
+      });
+
+      if (res.status === 429) {
+        setReviewStatus("error");
+        setReviewError(
+          "Has alcanzado el límite de 2 testimonios por hora. Intenta de nuevo más tarde.",
+        );
+        return;
+      }
+      if (!res.ok) {
+        throw new Error("request-failed");
+      }
+
+      setReviewStatus("idle");
+      setSubmitted(true);
+    } catch {
+      setReviewStatus("error");
+      setReviewError("No pudimos enviar tu testimonio. Intenta de nuevo.");
+    }
   };
 
   return (
@@ -172,42 +211,53 @@ export default function Testimonials() {
         Testimonios
       </h2>
 
-      <div className="mx-auto mt-10 flex max-w-7xl items-center gap-2 md:gap-6">
-        <ArrowButton direction="prev" onClick={prev} />
+      {!loading && total === 0 && (
+        <p className="mx-auto mt-10 max-w-md text-center text-[var(--text-muted)]">
+          Todavía no hay testimonios publicados. ¡Sé el primero en escribir
+          uno!
+        </p>
+      )}
 
-        <div className="grid flex-1 gap-6 md:grid-cols-3">
-          {visible.map((t, i) => (
-            <motion.div
-              key={`${t.name}-${start}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className={`rounded-2xl bg-[var(--bg-band)] p-6 text-[var(--on-band)] md:p-10 ${
-                i > 0 ? "hidden md:block" : ""
-              }`}
-            >
-              <p className="font-bold md:text-xl">{t.name}</p>
-              <p className="text-sm text-[var(--on-band-muted)] md:text-base">
-                {t.subject}
-              </p>
-              <p className="mt-4 text-sm leading-relaxed md:mt-6 md:text-lg">
-                {t.review}
-              </p>
-              <div className="mt-4 flex gap-1 md:mt-6">
-                {Array.from({ length: 5 }).map((_, starIndex) => (
-                  <Star key={starIndex} filled={starIndex < t.rating} />
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      {total > 0 && (
+        <>
+          <div className="mx-auto mt-10 flex max-w-7xl items-center gap-2 md:gap-6">
+            {canPage && <ArrowButton direction="prev" onClick={prev} />}
 
-        <ArrowButton direction="next" onClick={next} />
-      </div>
+            <div className="grid flex-1 gap-6 md:grid-cols-3">
+              {visible.map((t, i) => (
+                <motion.div
+                  key={`${t.name}-${start}-${i}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className={`rounded-2xl bg-[var(--bg-band)] p-6 text-[var(--on-band)] md:p-10 ${
+                    i > 0 ? "hidden md:block" : ""
+                  }`}
+                >
+                  <p className="font-bold md:text-xl">{t.name}</p>
+                  <p className="text-sm text-[var(--on-band-muted)] md:text-base">
+                    {t.subject}
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed md:mt-6 md:text-lg">
+                    {t.message}
+                  </p>
+                  <div className="mt-4 flex gap-1 md:mt-6">
+                    {Array.from({ length: t.rating }).map((_, starIndex) => (
+                      <Star key={starIndex} />
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-        {total} testimonios
-      </p>
+            {canPage && <ArrowButton direction="next" onClick={next} />}
+          </div>
+
+          <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
+            {total} testimonios
+          </p>
+        </>
+      )}
 
       <div className="mt-6 flex justify-center">
         <button
@@ -274,8 +324,20 @@ export default function Testimonials() {
                       className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
                     <input
-                      type="text"
-                      placeholder="Materia"
+                      type="email"
+                      placeholder="Correo (no se publica, solo para confirmarte)"
+                      required
+                      value={reviewForm.email}
+                      onChange={(e) =>
+                        setReviewForm((f) => ({
+                          ...f,
+                          email: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                    />
+                    <select
+                      aria-label="Materia"
                       required
                       value={reviewForm.materia}
                       onChange={(e) =>
@@ -284,8 +346,25 @@ export default function Testimonials() {
                           materia: e.target.value,
                         }))
                       }
-                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
-                    />
+                      className={`w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] ${
+                        reviewForm.materia
+                          ? "text-[var(--bg-band)]"
+                          : "!text-gray-500"
+                      }`}
+                    >
+                      <option value="" disabled className="text-black">
+                        Materia
+                      </option>
+                      {subjects.map((subject) => (
+                        <option
+                          key={subject}
+                          value={subject}
+                          className="text-black"
+                        >
+                          {subject}
+                        </option>
+                      ))}
+                    </select>
                     <div className="flex flex-col gap-1.5">
                       <span className="text-sm text-[var(--text-muted)]">
                         Calificación
@@ -311,6 +390,10 @@ export default function Testimonials() {
                       className="w-full resize-none rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
 
+                    {reviewStatus === "error" && (
+                      <p className="text-sm text-red-500">{reviewError}</p>
+                    )}
+
                     <div className="flex justify-end gap-3 pt-1">
                       <button
                         type="button"
@@ -321,10 +404,13 @@ export default function Testimonials() {
                       </button>
                       <button
                         type="submit"
-                        disabled={reviewForm.rating === 0}
+                        disabled={
+                          reviewForm.rating === 0 ||
+                          reviewStatus === "sending"
+                        }
                         className="rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90 disabled:opacity-50"
                       >
-                        Enviar
+                        {reviewStatus === "sending" ? "Enviando..." : "Enviar"}
                       </button>
                     </div>
                   </form>
