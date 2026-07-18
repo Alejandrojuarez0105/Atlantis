@@ -61,7 +61,7 @@ export default function Navbar() {
             priority
           />
           <span className="hidden sm:block h-8 w-px bg-[var(--border)]" />
-          <span className="hidden sm:block text-xs leading-tight font-semibold text-[var(--text)]">
+          <span className="hidden sm:block text-xs leading-tight font-semibold text-[var(--brand-text)]">
             Tutorías
             <br />
             Académicas
