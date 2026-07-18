@@ -11,6 +11,7 @@ const subjects = [
   "Matemática Numérica",
   "Estadística I",
   "Lenguajes de Programación",
+  "Marketing Estratégico y Operativo",
 ];
 const loopSubjects = [...subjects, ...subjects];
 

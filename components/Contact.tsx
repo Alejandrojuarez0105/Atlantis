@@ -77,18 +77,22 @@ function PinIcon() {
 export default function Contact() {
   const { theme, mounted } = useTheme();
   const isDark = mounted && theme === "dark";
-  const [form, setForm] = useState({
+  const emptyForm = {
     nombre: "",
+    email: "",
     countryCode: "",
     telefono: "",
     materia: "",
     fecha: "",
     hora: "",
     nota: "",
-  });
+  };
+  const [form, setForm] = useState(emptyForm);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [submitted, setSubmitted] = useState(false);
   const [portalMounted, setPortalMounted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     setPortalMounted(true);
@@ -113,22 +117,40 @@ export default function Contact() {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/reserva", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.status === 429) {
+        setStatus("error");
+        setErrorMsg(
+          "Has alcanzado el límite de 2 solicitudes por hora. Intenta de nuevo más tarde.",
+        );
+        return;
+      }
+      if (!res.ok) {
+        throw new Error("request-failed");
+      }
+
+      setStatus("idle");
+      setSubmitted(true);
+    } catch {
+      setStatus("error");
+      setErrorMsg("No pudimos enviar tu solicitud. Intenta de nuevo.");
+    }
   };
 
   const closeSuccess = () => {
     setSubmitted(false);
-    setForm({
-      nombre: "",
-      countryCode: "",
-      telefono: "",
-      materia: "",
-      fecha: "",
-      hora: "",
-      nota: "",
-    });
+    setForm(emptyForm);
   };
 
   const now = new Date();
@@ -157,6 +179,14 @@ export default function Contact() {
               required
               value={form.nombre}
               onChange={handleChange("nombre")}
+              className={inputClass()}
+            />
+            <input
+              type="email"
+              placeholder="Correo"
+              required
+              value={form.email}
+              onChange={handleChange("email")}
               className={inputClass()}
             />
             <div className="flex gap-4">
@@ -242,11 +272,16 @@ export default function Contact() {
               className={`${inputClass()} resize-none`}
             />
 
+            {status === "error" && (
+              <p className="text-sm text-red-500">{errorMsg}</p>
+            )}
+
             <button
               type="submit"
-              className="rounded-full bg-[var(--accent)] px-8 py-3 text-base font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90"
+              disabled={status === "sending"}
+              className="rounded-full bg-[var(--accent)] px-8 py-3 text-base font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90 disabled:opacity-60"
             >
-              Enviar solicitud
+              {status === "sending" ? "Enviando..." : "Enviar solicitud"}
             </button>
           </form>
         </motion.div>

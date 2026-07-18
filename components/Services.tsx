@@ -30,7 +30,8 @@ const checklist = [
 const subjectColumns = [
   ["Matemática I", "Matemática II"],
   ["Matemática Numérica", "Matemática Discreta"],
-  ["Estadística I", "Lenguajes de Programación"],
+  ["Estadística I", "Lenguajes de Programación",],
+  ["Marketing Estratégico y Operativo"],
 ];
 
 function CheckIcon() {
@@ -117,7 +118,7 @@ export default function Services() {
       <div className="mt-16 flex flex-col gap-8 rounded-2xl bg-[var(--bg-band)] px-6 py-10 text-[var(--on-band)] md:flex-row md:items-center md:justify-between md:px-10">
         <div>
           <h3 className="text-xl font-bold md:text-2xl">Materias</h3>
-          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-4">
             {subjectColumns.map((column) => (
               <ul key={column[0]} className="space-y-2">
                 {column.map((subject) => (
