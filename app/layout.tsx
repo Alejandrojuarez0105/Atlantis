@@ -10,6 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://atlantis.aejhernandez.dev"),
   title: "Atlantis — Tutorías Académicas",
   description:
     "Tutorías particulares de Matemáticas, Estadística y Lenguajes de programación en Santander.",

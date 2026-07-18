@@ -146,6 +146,20 @@ export default function Contact() {
         );
         return;
       }
+      if (res.status === 400) {
+        const data = await res.json().catch(() => null);
+        setStatus("error");
+        setErrorMsg(
+          data?.error === "invalid-phone"
+            ? "Revisa el número de teléfono, solo debe tener dígitos."
+            : data?.error === "invalid-country-code"
+              ? "Revisa el código de país, ej. +34."
+              : data?.error === "invalid-email"
+                ? "Revisa el correo ingresado."
+                : "Revisa los datos del formulario.",
+        );
+        return;
+      }
       if (!res.ok) {
         throw new Error("request-failed");
       }
@@ -217,6 +231,8 @@ export default function Contact() {
                 placeholder="Teléfono"
                 required
                 inputMode="tel"
+                pattern="[0-9\s-]{6,15}"
+                title="Solo números (6 a 15 dígitos)"
                 value={form.telefono}
                 onChange={handleChange("telefono")}
                 className={`${inputClass()} flex-1`}

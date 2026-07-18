@@ -13,6 +13,14 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function isValidPhone(phone: string) {
+  return /^[0-9\s-]{6,15}$/.test(phone);
+}
+
+function isValidCountryCode(code: string) {
+  return /^\+[0-9]{1,4}$/.test(code);
+}
+
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -44,19 +52,43 @@ export async function POST(req: NextRequest) {
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "invalid-email" }, { status: 400 });
   }
+  if (!isValidCountryCode(countryCode)) {
+    return NextResponse.json(
+      { error: "invalid-country-code" },
+      { status: 400 },
+    );
+  }
+  if (!isValidPhone(telefono)) {
+    return NextResponse.json({ error: "invalid-phone" }, { status: 400 });
+  }
 
   const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
-  const { count, error: countError } = await supabaseAdmin
-    .from("reservations")
-    .select("id", { count: "exact", head: true })
-    .eq("email", email)
-    .gte("created_at", since);
+  const [emailCount, phoneCount] = await Promise.all([
+    supabaseAdmin
+      .from("reservations")
+      .select("id", { count: "exact", head: true })
+      .eq("email", email)
+      .gte("created_at", since),
+    supabaseAdmin
+      .from("reservations")
+      .select("id", { count: "exact", head: true })
+      .eq("country_code", countryCode)
+      .eq("telefono", telefono)
+      .gte("created_at", since),
+  ]);
 
-  if (countError) {
-    console.error("Error checking reservation rate limit", countError);
+  if (emailCount.error || phoneCount.error) {
+    console.error(
+      "Error checking reservation rate limit",
+      emailCount.error,
+      phoneCount.error,
+    );
     return NextResponse.json({ error: "server-error" }, { status: 500 });
   }
-  if ((count ?? 0) >= RATE_LIMIT) {
+  if (
+    (emailCount.count ?? 0) >= RATE_LIMIT ||
+    (phoneCount.count ?? 0) >= RATE_LIMIT
+  ) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
 
