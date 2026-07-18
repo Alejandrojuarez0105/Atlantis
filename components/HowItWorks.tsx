@@ -61,20 +61,12 @@ export default function HowItWorks() {
           académicos!
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4">
-          <a
-            href="#contacto"
-            className="rounded-full bg-[var(--on-band)] px-6 py-3 text-base font-semibold text-[var(--bg-band)] transition-opacity hover:opacity-90"
-          >
-            Reserva tu tutoría
-          </a>
-          <a
-            href="#servicios"
-            className="rounded-full border border-[var(--on-band)] px-6 py-3 text-base font-semibold text-[var(--on-band)] transition-colors hover:bg-white/10"
-          >
-            Servicios
-          </a>
-        </div>
+        <a
+          href="#contacto"
+          className="rounded-full bg-[var(--on-band)] px-6 py-3 text-base font-semibold text-[var(--bg-band)] transition-opacity hover:opacity-90"
+        >
+          Reserva tu tutoría
+        </a>
       </div>
     </section>
   );

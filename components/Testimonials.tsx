@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 
 const testimonials = [
@@ -60,6 +61,38 @@ function Star({ filled }: { filled: boolean }) {
   );
 }
 
+function StarPicker({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (rating: number) => void;
+}) {
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onChange(i + 1)}
+          aria-label={`${i + 1} estrellas`}
+          className="p-0.5"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            className={`h-6 w-6 ${
+              i < value ? "text-amber-400" : "text-gray-400"
+            }`}
+            fill="currentColor"
+          >
+            <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.79L10 14.9l-5.21 2.61 1-5.79-4.21-4.1 5.82-.85L10 1.5z" />
+          </svg>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function ArrowButton({
   direction,
   onClick,
@@ -87,6 +120,8 @@ function ArrowButton({
   );
 }
 
+const emptyReviewForm = { nombre: "", materia: "", rating: 0, resena: "" };
+
 export default function Testimonials() {
   const [start, setStart] = useState(0);
   const total = testimonials.length;
@@ -96,6 +131,37 @@ export default function Testimonials() {
 
   const prev = () => setStart((s) => (s - 1 + total) % total);
   const next = () => setStart((s) => (s + 1) % total);
+
+  const [open, setOpen] = useState(false);
+  const [portalMounted, setPortalMounted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [reviewForm, setReviewForm] = useState(emptyReviewForm);
+
+  useEffect(() => {
+    setPortalMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const closeModal = () => {
+    setOpen(false);
+    setTimeout(() => {
+      setSubmitted(false);
+      setReviewForm(emptyReviewForm);
+    }, 300);
+  };
+
+  const handleReviewSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
 
   return (
     <section
@@ -144,13 +210,130 @@ export default function Testimonials() {
       </p>
 
       <div className="mt-6 flex justify-center">
-        <a
-          href="mailto:atlantis.tutorias@gmail.com?subject=Mi%20testimonio"
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
           className="rounded-full bg-[var(--bg-input)] px-6 py-3 text-base font-semibold text-[var(--bg-band)] transition-opacity hover:opacity-90"
         >
           Escribe tu testimonio
-        </a>
+        </button>
       </div>
+
+      {portalMounted &&
+        open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            onClick={closeModal}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Escribe tu testimonio"
+          >
+            <div
+              className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-[var(--bg-card)] p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {submitted ? (
+                <div className="flex flex-col items-center gap-4 py-6 text-center">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-2xl text-[var(--on-accent)]">
+                    ✓
+                  </span>
+                  <h3 className="text-xl font-bold text-[var(--text)]">
+                    ¡Gracias!
+                  </h3>
+                  <p className="text-[var(--text-muted)]">
+                    Revisaremos tu reseña antes de publicarla.
+                  </p>
+                  <button
+                    onClick={closeModal}
+                    className="mt-2 rounded-full bg-[var(--accent)] px-8 py-3 text-base font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-[var(--text)]">
+                    Escribe tu testimonio
+                  </h3>
+                  <form
+                    onSubmit={handleReviewSubmit}
+                    className="flex flex-col gap-4"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Nombre"
+                      required
+                      value={reviewForm.nombre}
+                      onChange={(e) =>
+                        setReviewForm((f) => ({
+                          ...f,
+                          nombre: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Materia"
+                      required
+                      value={reviewForm.materia}
+                      onChange={(e) =>
+                        setReviewForm((f) => ({
+                          ...f,
+                          materia: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                    />
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-sm text-[var(--text-muted)]">
+                        Calificación
+                      </span>
+                      <StarPicker
+                        value={reviewForm.rating}
+                        onChange={(rating) =>
+                          setReviewForm((f) => ({ ...f, rating }))
+                        }
+                      />
+                    </div>
+                    <textarea
+                      placeholder="Tu reseña"
+                      required
+                      rows={4}
+                      value={reviewForm.resena}
+                      onChange={(e) =>
+                        setReviewForm((f) => ({
+                          ...f,
+                          resena: e.target.value,
+                        }))
+                      }
+                      className="w-full resize-none rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                    />
+
+                    <div className="flex justify-end gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={closeModal}
+                        className="rounded-full px-5 py-2.5 text-sm font-semibold text-[var(--text-muted)] transition-colors hover:text-[var(--accent-text)]"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={reviewForm.rating === 0}
+                        className="rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90 disabled:opacity-50"
+                      >
+                        Enviar
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }

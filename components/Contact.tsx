@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, useEffect, FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { useTheme } from "@/lib/theme-context";
 
@@ -78,12 +79,29 @@ export default function Contact() {
   const isDark = mounted && theme === "dark";
   const [form, setForm] = useState({
     nombre: "",
+    countryCode: "",
+    telefono: "",
     materia: "",
     fecha: "",
     hora: "",
     nota: "",
   });
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [portalMounted, setPortalMounted] = useState(false);
+
+  useEffect(() => {
+    setPortalMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!submitted) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSubmitted(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [submitted]);
 
   const handleChange =
     (field: keyof typeof form) =>
@@ -97,19 +115,20 @@ export default function Contact() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const body = [
-      `Nombre: ${form.nombre}`,
-      `Materia: ${form.materia}`,
-      `Fecha: ${form.fecha || "--/--/--"}`,
-      `Hora: ${form.hora || "00:00"}`,
-      form.nota && `Nota: ${form.nota}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    setSubmitted(true);
+  };
 
-    window.location.href = `mailto:atlantis.tutorias@gmail.com?subject=${encodeURIComponent(
-      "Solicitud de Reserva",
-    )}&body=${encodeURIComponent(body)}`;
+  const closeSuccess = () => {
+    setSubmitted(false);
+    setForm({
+      nombre: "",
+      countryCode: "",
+      telefono: "",
+      materia: "",
+      fecha: "",
+      hora: "",
+      nota: "",
+    });
   };
 
   const now = new Date();
@@ -140,6 +159,29 @@ export default function Contact() {
               onChange={handleChange("nombre")}
               className={inputClass()}
             />
+            <div className="flex gap-4">
+              <input
+                type="text"
+                aria-label="Código de país"
+                placeholder="+34"
+                required
+                inputMode="tel"
+                pattern="\+[0-9]{1,4}"
+                title="Código de país, ej. +34"
+                value={form.countryCode}
+                onChange={handleChange("countryCode")}
+                className={`${inputClass()} !w-20 flex-none text-center`}
+              />
+              <input
+                type="tel"
+                placeholder="Teléfono"
+                required
+                inputMode="tel"
+                value={form.telefono}
+                onChange={handleChange("telefono")}
+                className={`${inputClass()} flex-1`}
+              />
+            </div>
             <input
               type="text"
               placeholder="Materia"
@@ -273,6 +315,40 @@ export default function Contact() {
           </ul>
         </motion.div>
       </div>
+
+      {portalMounted &&
+        submitted &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            onClick={closeSuccess}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Solicitud enviada"
+          >
+            <div
+              className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-[var(--bg-card)] p-8 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-2xl text-[var(--on-accent)]">
+                ✓
+              </span>
+              <h3 className="text-xl font-bold text-[var(--text)]">
+                ¡Gracias!
+              </h3>
+              <p className="text-[var(--text-muted)]">
+                Te responderemos lo antes posible.
+              </p>
+              <button
+                onClick={closeSuccess}
+                className="mt-2 rounded-full bg-[var(--accent)] px-8 py-3 text-base font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }
