@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "@/lib/theme-context";
 
@@ -20,7 +20,7 @@ const timeSlots = (() => {
 })();
 
 function inputClass() {
-  return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]";
+  return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] [color-scheme:light]";
 }
 
 function PhoneIcon() {
@@ -83,6 +83,7 @@ export default function Contact() {
     hora: "",
     nota: "",
   });
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange =
     (field: keyof typeof form) =>
@@ -148,20 +149,38 @@ export default function Contact() {
               className={inputClass()}
             />
             <div className="flex gap-4">
-              <input
-                type="date"
-                aria-label="Fecha"
-                min={todayStr}
-                value={form.fecha}
-                onChange={handleChange("fecha")}
-                className={inputClass()}
-              />
+              <div className="relative flex-1 rounded-lg focus-within:ring-2 focus-within:ring-[var(--accent)]">
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  aria-label="Fecha"
+                  min={todayStr}
+                  value={form.fecha}
+                  onChange={handleChange("fecha")}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Tab") e.preventDefault();
+                  }}
+                  onClick={() => dateInputRef.current?.showPicker?.()}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0 outline-none"
+                />
+                <div className="pointer-events-none flex h-full items-center rounded-lg bg-[var(--bg-input)] px-4 py-3">
+                  {form.fecha ? (
+                    <span className="text-[var(--bg-band)]">
+                      {new Date(`${form.fecha}T00:00:00`).toLocaleDateString(
+                        "es-ES",
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">Fecha</span>
+                  )}
+                </div>
+              </div>
               <select
                 aria-label="Hora"
                 required
                 value={form.hora}
                 onChange={handleChange("hora")}
-                className={inputClass()}
+                className={`${inputClass()} flex-1 ${form.hora ? "" : "!text-gray-500"}`}
               >
                 <option value="" disabled>
                   Hora

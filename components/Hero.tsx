@@ -20,7 +20,7 @@ function LogoGraphic() {
     mounted && theme === "dark" ? "/logo-icon-dark.png" : "/logo-icon.png";
 
   return (
-    <div className="absolute top-20 right-16 lg:right-55 -z-10 overflow-hidden pointer-events-none hidden lg:block w-[54%] h-[430px]">
+    <div className="absolute top-20 right-16 xl:right-55 -z-10 overflow-hidden pointer-events-none hidden xl:block w-[54%] h-[430px]">
       <Image
         src={logoSrc}
         alt=""
