@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
   const fecha = String(body.fecha ?? "").trim();
   const hora = String(body.hora ?? "").trim();
   const nota = String(body.nota ?? "").trim();
+  const consentimiento = body.consentimiento === true;
 
   if (
     !nombre ||
@@ -48,6 +49,9 @@ export async function POST(req: NextRequest) {
     !hora
   ) {
     return NextResponse.json({ error: "missing-fields" }, { status: 400 });
+  }
+  if (!consentimiento) {
+    return NextResponse.json({ error: "missing-consent" }, { status: 400 });
   }
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "invalid-email" }, { status: 400 });

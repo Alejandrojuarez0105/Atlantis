@@ -96,6 +96,7 @@ export default function Contact() {
     fecha: "",
     hora: "",
     nota: "",
+    consentimiento: false,
   };
   const [form, setForm] = useState(emptyForm);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -305,6 +306,33 @@ export default function Contact() {
               onChange={handleChange("nota")}
               className={`${inputClass()} resize-none`}
             />
+
+            <label className="flex items-start gap-2.5 text-sm text-[var(--text-muted)]">
+              <input
+                type="checkbox"
+                required
+                checked={form.consentimiento}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    consentimiento: e.target.checked,
+                  }))
+                }
+                className="mt-0.5 h-4 w-4 flex-none accent-[var(--accent)]"
+              />
+              <span>
+                He leído y acepto la{" "}
+                <a
+                  href="/privacidad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[var(--accent-text)]"
+                >
+                  Política de Privacidad
+                </a>
+                .
+              </span>
+            </label>
 
             {status === "error" && (
               <p className="text-sm text-red-500">{errorMsg}</p>

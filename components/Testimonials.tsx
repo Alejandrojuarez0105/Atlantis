@@ -98,6 +98,7 @@ const emptyReviewForm = {
   materia: "",
   rating: 0,
   resena: "",
+  consentimiento: false,
 };
 
 export default function Testimonials() {
@@ -180,6 +181,7 @@ export default function Testimonials() {
           subject: reviewForm.materia,
           rating: reviewForm.rating,
           message: reviewForm.resena,
+          consentimiento: reviewForm.consentimiento,
         }),
       });
 
@@ -389,6 +391,33 @@ export default function Testimonials() {
                       }
                       className="w-full resize-none rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
+
+                    <label className="flex items-start gap-2.5 text-sm text-[var(--text-muted)]">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={reviewForm.consentimiento}
+                        onChange={(e) =>
+                          setReviewForm((f) => ({
+                            ...f,
+                            consentimiento: e.target.checked,
+                          }))
+                        }
+                        className="mt-0.5 h-4 w-4 flex-none accent-[var(--accent)]"
+                      />
+                      <span>
+                        He leído y acepto la{" "}
+                        <a
+                          href="/privacidad"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-[var(--accent-text)]"
+                        >
+                          Política de Privacidad
+                        </a>
+                        .
+                      </span>
+                    </label>
 
                     {reviewStatus === "error" && (
                       <p className="text-sm text-red-500">{reviewError}</p>

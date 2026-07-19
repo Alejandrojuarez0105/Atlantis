@@ -26,9 +26,13 @@ export async function POST(req: NextRequest) {
   const subject = String(body.subject ?? "").trim();
   const rating = Number(body.rating ?? 0);
   const message = String(body.message ?? "").trim();
+  const consentimiento = body.consentimiento === true;
 
   if (!name || !email || !subject || !message || !rating) {
     return NextResponse.json({ error: "missing-fields" }, { status: 400 });
+  }
+  if (!consentimiento) {
+    return NextResponse.json({ error: "missing-consent" }, { status: 400 });
   }
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "invalid-email" }, { status: 400 });
