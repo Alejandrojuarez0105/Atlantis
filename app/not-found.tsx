@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center">
       <span className="font-mono text-xs tracking-widest text-[var(--accent-text)]">
-        // error 404 — ruta no encontrada
+        {"// error 404 — ruta no encontrada"}
       </span>
       <h1 className="mt-4 text-7xl font-bold text-[var(--text)] md:text-8xl">
         404

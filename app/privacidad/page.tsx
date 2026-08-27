@@ -31,7 +31,7 @@ export default function PrivacidadPage() {
     <main className="px-6 pb-24 pt-32 md:px-12 md:pt-44 lg:px-16">
       <div className="mx-auto max-w-3xl">
         <span className="font-mono text-xs tracking-widest text-[var(--accent-text)]">
-          // legal
+          {"// legal"}
         </span>
         <h1 className="mt-2 text-3xl font-bold text-[var(--text)] md:text-4xl">
           Política de Privacidad

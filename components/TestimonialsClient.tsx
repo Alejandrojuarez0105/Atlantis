@@ -114,26 +114,12 @@ export default function TestimonialsClient({
   const next = () => setStart((s) => (s + 1) % total);
 
   const [open, setOpen] = useState(false);
-  const [portalMounted, setPortalMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reviewForm, setReviewForm] = useState(emptyReviewForm);
   const [reviewStatus, setReviewStatus] = useState<
     "idle" | "sending" | "error"
   >("idle");
   const [reviewError, setReviewError] = useState("");
-
-  useEffect(() => {
-    setPortalMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
 
   const closeModal = () => {
     setOpen(false);
@@ -144,6 +130,15 @@ export default function TestimonialsClient({
       setReviewError("");
     }, 300);
   };
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const handleReviewSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -250,8 +245,7 @@ export default function TestimonialsClient({
         </button>
       </div>
 
-      {portalMounted &&
-        open &&
+      {open &&
         createPortal(
           <div
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"

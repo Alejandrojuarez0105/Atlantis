@@ -101,13 +101,8 @@ export default function Contact() {
   const [form, setForm] = useState(emptyForm);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [portalMounted, setPortalMounted] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-
-  useEffect(() => {
-    setPortalMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!submitted) return;
@@ -417,8 +412,7 @@ export default function Contact() {
         </motion.div>
       </div>
 
-      {portalMounted &&
-        submitted &&
+      {submitted &&
         createPortal(
           <div
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
