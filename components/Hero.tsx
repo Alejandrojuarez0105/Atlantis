@@ -27,7 +27,7 @@ function LogoGraphic() {
         alt=""
         fill
         sizes="54vw"
-        priority
+        loading="lazy"
         className="object-contain object-right-top"
       />
     </div>

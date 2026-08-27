@@ -404,6 +404,10 @@ export default function Contact() {
                 <img
                   src={`/payment-${method.icon}${isDark ? "" : "-dark"}.png`}
                   alt=""
+                  width={28}
+                  height={28}
+                  loading="lazy"
+                  decoding="async"
                   className="h-7 w-7 flex-none object-contain"
                 />
                 <span>{method.label}</span>
