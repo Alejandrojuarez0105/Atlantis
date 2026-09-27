@@ -25,6 +25,10 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable}`} suppressHydrationWarning>
       <head>
+        {/* El sitio ya tiene tema oscuro propio: le pide a la extensión Dark
+            Reader que no lo modifique (si no, reintroduce problemas de
+            contraste y causa avisos de hidratación al alterar el HTML). */}
+        <meta name="darkreader-lock" />
         {/* Anti-parpadeo: corre ANTES de pintar. Aplica el tema guardado o, en
             la primera visita, el del sistema (prefers-color-scheme), evitando
             el flash claro→oscuro. Debe ir en <head> y ser síncrono. */}
