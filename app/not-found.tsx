@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center">
+    <main id="contenido" className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center">
       <span className="font-mono text-xs tracking-widest text-[var(--accent-text)]">
         {"// error 404 — ruta no encontrada"}
       </span>

@@ -73,6 +73,7 @@ export default function Navbar() {
             <a
               key={id}
               href={`#${id}`}
+              aria-current={active === id ? "location" : undefined}
               className={`text-base px-6 py-3 rounded-full transition-colors ${
                 active === id
                   ? "bg-[var(--accent)] text-[var(--on-accent)]"
@@ -92,6 +93,7 @@ export default function Navbar() {
             className="flex flex-col gap-1.5 p-1"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={open}
+            aria-controls="menu-movil"
           >
             <span
               className={`block h-0.5 w-6 bg-[var(--text)] transition-transform duration-300 ${
@@ -112,7 +114,11 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* inert mientras está cerrado: si no, los links ocultos por
+          max-h-0 seguirían recibiendo foco con Tab. */}
       <div
+        id="menu-movil"
+        inert={!open}
         className={`md:hidden overflow-hidden transition-[max-height] duration-300 ${
           open ? "max-h-60" : "max-h-0"
         }`}
@@ -123,6 +129,7 @@ export default function Navbar() {
               key={id}
               href={`#${id}`}
               onClick={() => setOpen(false)}
+              aria-current={active === id ? "location" : undefined}
               className={`py-2.5 text-sm transition-colors ${
                 active === id
                   ? "text-[var(--accent-text)] font-semibold"

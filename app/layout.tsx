@@ -35,6 +35,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <a href="#contenido" className="skip-link">
+          Saltar al contenido
+        </a>
         <ThemeProvider>
           <Navbar />
           {children}

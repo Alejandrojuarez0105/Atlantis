@@ -39,6 +39,7 @@ function CheckIcon() {
     <svg
       viewBox="0 0 20 20"
       fill="none"
+      aria-hidden="true"
       className="h-5 w-5 flex-none text-[var(--accent-text)]"
     >
       <path
@@ -115,7 +116,7 @@ export default function Services() {
         </a>
       </div>
 
-      <div className="mt-16 flex flex-col gap-8 rounded-2xl bg-[var(--bg-band)] px-6 py-10 text-[var(--on-band)] md:flex-row md:items-center md:justify-between md:px-10">
+      <div className="mt-16 flex flex-col gap-8 rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] px-6 py-10 text-[var(--on-band)] md:flex-row md:items-center md:justify-between md:px-10">
         <div>
           <h3 className="text-xl font-bold md:text-2xl">Materias</h3>
           <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-4">

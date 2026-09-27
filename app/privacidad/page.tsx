@@ -28,7 +28,7 @@ function Section({
 
 export default function PrivacidadPage() {
   return (
-    <main className="px-6 pb-24 pt-32 md:px-12 md:pt-44 lg:px-16">
+    <main id="contenido" className="px-6 pb-24 pt-32 md:px-12 md:pt-44 lg:px-16">
       <div className="mx-auto max-w-3xl">
         <span className="font-mono text-xs tracking-widest text-[var(--accent-text)]">
           {"// legal"}

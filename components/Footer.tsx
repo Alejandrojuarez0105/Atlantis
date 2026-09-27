@@ -4,7 +4,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[var(--bg-band)] px-6 py-6 text-center text-sm text-[var(--on-band-muted)] md:px-12 lg:px-16">
+    <footer className="bg-[var(--bg-band)] [--focus-ring:var(--on-band)] px-6 py-6 text-center text-sm text-[var(--on-band-muted)] md:px-12 lg:px-16">
       <p>
         © {year} Atlantis Tutorías Académicas
         <span aria-hidden="true"> · </span>

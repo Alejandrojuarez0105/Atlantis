@@ -25,7 +25,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="relative bg-[var(--bg-band)] px-6 py-16 text-[var(--on-band)] md:px-12 md:py-20 lg:px-16">
+    <section className="relative bg-[var(--bg-band)] [--focus-ring:var(--on-band)] px-6 py-16 text-[var(--on-band)] md:px-12 md:py-20 lg:px-16">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--bg-base)] to-transparent md:h-36" />
 
       <h2 className="relative text-center text-2xl font-bold md:text-4xl">

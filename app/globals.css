@@ -14,6 +14,11 @@
   --on-band: #ffffff;
   --on-band-muted: #c7c9f0;
   --brand-text: #04344c;
+  --error: #dc2626;
+  /* Color del anillo de foco. Las franjas --bg-band lo sobreescriben con
+     [--focus-ring:var(--on-band)], porque en claro --accent y --bg-band son
+     el mismo azul y el anillo desaparecería. */
+  --focus-ring: var(--accent);
   --wave-1: #04344c;
   --wave-2: #9ca3af;
   --wave-3: #7c8ce8;
@@ -26,7 +31,7 @@
   --bg-input: #e4e4e7;
   --border: #0b4a68;
   --text: #f4f4f5;
-  --text-muted: #8fb8c9;
+  --text-muted: #9cc3d3;
   --accent: #b0edf9;
   --accent-text: #b0edf9;
   --on-accent: #04344c;
@@ -34,6 +39,7 @@
   --on-band: #b0edf9;
   --on-band-muted: #7fbfd1;
   --brand-text: #ffffff;
+  --error: #fca5a5;
 }
 
 /* El reset va dentro de @layer base para NO pisar las utilidades de Tailwind
@@ -44,6 +50,29 @@
     margin: 0;
     padding: 0;
   }
+
+  /* Foco visible solo con teclado. Va en la capa base para que utilidades
+     como outline-none (inputs con su propio focus:ring) lo puedan anular. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Visible solo cuando recibe foco con teclado (Tab al cargar la página). */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 1rem;
 }
 
 html {

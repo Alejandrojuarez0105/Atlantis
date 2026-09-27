@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import type { Testimonial } from "@/lib/testimonials";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 
 const subjects = [
   "Matemática I",
@@ -21,6 +22,7 @@ function Star() {
       viewBox="0 0 20 20"
       className="h-4 w-4 text-[var(--on-band)] md:h-5 md:w-5"
       fill="currentColor"
+      aria-hidden="true"
     >
       <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.79L10 14.9l-5.21 2.61 1-5.79-4.21-4.1 5.82-.85L10 1.5z" />
     </svg>
@@ -35,17 +37,19 @@ function StarPicker({
   onChange: (rating: number) => void;
 }) {
   return (
-    <div className="flex gap-1">
+    <div role="group" aria-labelledby="calificacion-label" className="flex gap-1">
       {Array.from({ length: 5 }).map((_, i) => (
         <button
           key={i}
           type="button"
           onClick={() => onChange(i + 1)}
-          aria-label={`${i + 1} estrellas`}
-          className="p-0.5"
+          aria-label={`${i + 1} ${i === 0 ? "estrella" : "estrellas"}`}
+          aria-pressed={i + 1 === value}
+          className="rounded p-0.5"
         >
           <svg
             viewBox="0 0 20 20"
+            aria-hidden="true"
             className={`h-6 w-6 ${
               i < value ? "text-amber-400" : "text-gray-400"
             }`}
@@ -73,7 +77,7 @@ function ArrowButton({
       aria-label={direction === "prev" ? "Testimonio anterior" : "Siguiente testimonio"}
       className="flex h-10 w-10 flex-none items-center justify-center rounded-full text-[var(--text)] transition-colors hover:text-[var(--accent-text)]"
     >
-      <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-6 w-6">
         <path
           d={direction === "prev" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}
           stroke="currentColor"
@@ -120,6 +124,7 @@ export default function TestimonialsClient({
     "idle" | "sending" | "error"
   >("idle");
   const [reviewError, setReviewError] = useState("");
+  const dialogRef = useDialogFocus<HTMLDivElement>(open);
 
   const closeModal = () => {
     setOpen(false);
@@ -199,7 +204,7 @@ export default function TestimonialsClient({
           <div className="mx-auto mt-10 flex max-w-7xl items-center gap-2 md:gap-6">
             {canPage && <ArrowButton direction="prev" onClick={prev} />}
 
-            <div className="grid flex-1 gap-6 md:grid-cols-3">
+            <div aria-live="polite" className="grid flex-1 gap-6 md:grid-cols-3">
               {visible.map((t, i) => (
                 <motion.div
                   key={`${t.name}-${start}-${i}`}
@@ -217,7 +222,11 @@ export default function TestimonialsClient({
                   <p className="mt-4 text-sm leading-relaxed md:mt-6 md:text-lg">
                     {t.message}
                   </p>
-                  <div className="mt-4 flex gap-1 md:mt-6">
+                  <div
+                    role="img"
+                    aria-label={`${t.rating} de 5 estrellas`}
+                    className="mt-4 flex gap-1 md:mt-6"
+                  >
                     {Array.from({ length: t.rating }).map((_, starIndex) => (
                       <Star key={starIndex} />
                     ))}
@@ -255,6 +264,7 @@ export default function TestimonialsClient({
             aria-label="Escribe tu testimonio"
           >
             <div
+              ref={dialogRef}
               className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-[var(--bg-card)] p-6"
               onClick={(e) => e.stopPropagation()}
             >
@@ -271,6 +281,7 @@ export default function TestimonialsClient({
                   </p>
                   <button
                     onClick={closeModal}
+                    autoFocus
                     className="mt-2 rounded-full bg-[var(--accent)] px-8 py-3 text-base font-semibold text-[var(--on-accent)] transition-opacity hover:opacity-90"
                   >
                     Cerrar
@@ -287,6 +298,7 @@ export default function TestimonialsClient({
                   >
                     <input
                       type="text"
+                      aria-label="Nombre"
                       placeholder="Nombre"
                       required
                       value={reviewForm.nombre}
@@ -296,10 +308,11 @@ export default function TestimonialsClient({
                           nombre: e.target.value,
                         }))
                       }
-                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
                     <input
                       type="email"
+                      aria-label="Correo"
                       placeholder="Correo (no se publica, solo para confirmarte)"
                       required
                       value={reviewForm.email}
@@ -309,7 +322,7 @@ export default function TestimonialsClient({
                           email: e.target.value,
                         }))
                       }
-                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                      className="w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
                     <select
                       aria-label="Materia"
@@ -324,7 +337,7 @@ export default function TestimonialsClient({
                       className={`w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] ${
                         reviewForm.materia
                           ? "text-[var(--bg-band)]"
-                          : "!text-gray-500"
+                          : "!text-gray-600"
                       }`}
                     >
                       <option value="" disabled className="text-black">
@@ -341,7 +354,10 @@ export default function TestimonialsClient({
                       ))}
                     </select>
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-sm text-[var(--text-muted)]">
+                      <span
+                        id="calificacion-label"
+                        className="text-sm text-[var(--text-muted)]"
+                      >
                         Calificación
                       </span>
                       <StarPicker
@@ -352,6 +368,7 @@ export default function TestimonialsClient({
                       />
                     </div>
                     <textarea
+                      aria-label="Tu reseña"
                       placeholder="Tu reseña"
                       required
                       rows={4}
@@ -362,7 +379,7 @@ export default function TestimonialsClient({
                           resena: e.target.value,
                         }))
                       }
-                      className="w-full resize-none rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
+                      className="w-full resize-none rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
                     />
 
                     <label className="flex items-start gap-2.5 text-sm text-[var(--text-muted)]">
@@ -393,7 +410,9 @@ export default function TestimonialsClient({
                     </label>
 
                     {reviewStatus === "error" && (
-                      <p className="text-sm text-red-500">{reviewError}</p>
+                      <p role="alert" className="text-sm text-[var(--error)]">
+                        {reviewError}
+                      </p>
                     )}
 
                     <div className="flex justify-end gap-3 pt-1">

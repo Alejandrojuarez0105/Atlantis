@@ -9,7 +9,7 @@ export const revalidate = 60;
 
 export default function Home() {
   return (
-    <main>
+    <main id="contenido">
       <Hero />
       <HowItWorks />
       <Services />

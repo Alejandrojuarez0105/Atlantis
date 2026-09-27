@@ -76,9 +76,15 @@ export default function Hero() {
           transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
         >
           {loopSubjects.map((subject, i) => (
-            <span key={i} className="flex items-center gap-10">
+            <span
+              key={i}
+              aria-hidden={i >= subjects.length}
+              className="flex items-center gap-10"
+            >
               {subject}
-              <span className="text-[var(--border)]">•</span>
+              <span aria-hidden="true" className="text-[var(--border)]">
+                •
+              </span>
             </span>
           ))}
         </motion.div>

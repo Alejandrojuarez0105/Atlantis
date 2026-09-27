@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { useTheme } from "@/lib/theme-context";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 
 const paymentMethods = [
   { label: "Bizum", icon: "bizum" },
@@ -31,12 +32,12 @@ const timeSlots = (() => {
 })();
 
 function inputClass() {
-  return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-500 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] [color-scheme:light]";
+  return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] [color-scheme:light]";
 }
 
 function PhoneIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 flex-none">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
       <path
         d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"
         stroke="currentColor"
@@ -49,7 +50,7 @@ function PhoneIcon() {
 
 function MailIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 flex-none">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
       <rect
         x="3"
         y="5"
@@ -72,7 +73,7 @@ function MailIcon() {
 
 function PinIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 flex-none">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
       <path
         d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21z"
         stroke="currentColor"
@@ -103,6 +104,7 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const dialogRef = useDialogFocus<HTMLDivElement>(submitted);
 
   useEffect(() => {
     if (!submitted) return;
@@ -195,6 +197,7 @@ export default function Contact() {
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <input
               type="text"
+              aria-label="Nombre"
               placeholder="Nombre"
               required
               value={form.nombre}
@@ -203,6 +206,7 @@ export default function Contact() {
             />
             <input
               type="email"
+              aria-label="Correo"
               placeholder="Correo"
               required
               value={form.email}
@@ -224,6 +228,7 @@ export default function Contact() {
               />
               <input
                 type="tel"
+                aria-label="Teléfono"
                 placeholder="Teléfono"
                 required
                 inputMode="tel"
@@ -239,7 +244,7 @@ export default function Contact() {
               required
               value={form.materia}
               onChange={handleChange("materia")}
-              className={`${inputClass()} ${form.materia ? "" : "!text-gray-500"}`}
+              className={`${inputClass()} ${form.materia ? "" : "!text-gray-600"}`}
             >
               <option value="" disabled className="text-black">
                 Materia
@@ -260,7 +265,11 @@ export default function Contact() {
                   value={form.fecha}
                   onChange={handleChange("fecha")}
                   onKeyDown={(e) => {
-                    if (e.key !== "Tab") e.preventDefault();
+                    if (e.key === "Tab") return;
+                    e.preventDefault();
+                    if (e.key === "Enter" || e.key === " ") {
+                      dateInputRef.current?.showPicker?.();
+                    }
                   }}
                   onClick={() => dateInputRef.current?.showPicker?.()}
                   className="absolute inset-0 h-full w-full cursor-pointer opacity-0 outline-none"
@@ -273,7 +282,7 @@ export default function Contact() {
                       )}
                     </span>
                   ) : (
-                    <span className="text-gray-500">Fecha</span>
+                    <span className="text-gray-600">Fecha</span>
                   )}
                 </div>
               </div>
@@ -282,7 +291,7 @@ export default function Contact() {
                 required
                 value={form.hora}
                 onChange={handleChange("hora")}
-                className={`${inputClass()} flex-1 ${form.hora ? "" : "!text-gray-500"}`}
+                className={`${inputClass()} flex-1 ${form.hora ? "" : "!text-gray-600"}`}
               >
                 <option value="" disabled className="text-black">
                   Hora
@@ -295,6 +304,7 @@ export default function Contact() {
               </select>
             </div>
             <textarea
+              aria-label="Nota (opcional)"
               placeholder="Nota (opcional)"
               rows={5}
               value={form.nota}
@@ -330,7 +340,9 @@ export default function Contact() {
             </label>
 
             {status === "error" && (
-              <p className="text-sm text-red-500">{errorMsg}</p>
+              <p role="alert" className="text-sm text-[var(--error)]">
+                {errorMsg}
+              </p>
             )}
 
             <button
@@ -348,7 +360,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-2xl bg-[var(--bg-band)] p-8 text-[var(--on-band)] md:p-10"
+          className="rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] p-8 text-[var(--on-band)] md:p-10"
         >
           <h3 className="text-xl font-bold md:text-2xl">Contacto</h3>
           <ul className="mt-6 space-y-4">
@@ -422,6 +434,7 @@ export default function Contact() {
             aria-label="Solicitud enviada"
           >
             <div
+              ref={dialogRef}
               className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-[var(--bg-card)] p-8 text-center"
               onClick={(e) => e.stopPropagation()}
             >
