@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import { useTheme } from "@/lib/theme-context";
 
 const subjects = [
@@ -13,22 +13,33 @@ const subjects = [
   "Marketing Estratégico y Operativo",
 ];
 const loopSubjects = [...subjects, ...subjects];
+const EMPTY_GIF =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 function LogoGraphic() {
   const { theme, mounted } = useTheme();
   const logoSrc =
     mounted && theme === "dark" ? "/logo-icon-dark.png" : "/logo-icon.png";
+  const {
+    props: { srcSet, sizes, ...rest },
+  } = getImageProps({
+    src: logoSrc,
+    alt: "",
+    fill: true,
+    sizes: "54vw",
+    loading: "eager",
+    className: "object-contain object-right-top",
+  });
 
   return (
     <div className="absolute top-20 right-16 xl:right-0 -z-10 overflow-hidden pointer-events-none hidden xl:block w-[54%] h-[430px]">
-      <Image
-        src={logoSrc}
-        alt=""
-        fill
-        sizes="54vw"
-        loading="lazy"
-        className="object-contain object-right-top"
-      />
+      {/* Solo se ve desde xl, donde es el LCP: carga eager, pero solo dentro
+          del <source> de xl. Debajo de 1280px el <img> cae a un GIF vacío en
+          línea, así que el móvil no descarga el logo aunque esté oculto. */}
+      <picture>
+        <source media="(min-width: 1280px)" srcSet={srcSet} sizes={sizes} />
+        <img {...rest} alt="" src={EMPTY_GIF} />
+      </picture>
     </div>
   );
 }
