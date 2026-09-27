@@ -1,3 +1,5 @@
+// Solo servidor: usa la service_role key como clave del HMAC.
+import "server-only";
 import { createHmac } from "crypto";
 import type { NextRequest } from "next/server";
 
