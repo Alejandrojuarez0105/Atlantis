@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
+import { IP_RATE_LIMIT, getIpHash, isHoneypotFilled } from "@/lib/spam-guard";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,6 +20,12 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid-json" }, { status: 400 });
+  }
+
+  // Bot: se responde como si todo hubiera ido bien para que no lo note, pero
+  // no se guarda nada ni se manda ningún correo.
+  if (isHoneypotFilled(body)) {
+    return NextResponse.json({ ok: true });
   }
 
   const name = String(body.name ?? "").trim();
@@ -42,17 +49,34 @@ export async function POST(req: NextRequest) {
   }
 
   const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
-  const { count, error: countError } = await supabaseAdmin
-    .from("testimonials")
-    .select("id", { count: "exact", head: true })
-    .eq("email", email)
-    .gte("created_at", since);
+  const ipHash = getIpHash(req);
+  const [emailCount, ipCount] = await Promise.all([
+    supabaseAdmin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .eq("email", email)
+      .gte("created_at", since),
+    ipHash
+      ? supabaseAdmin
+          .from("testimonials")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", since)
+      : { count: 0, error: null },
+  ]);
 
-  if (countError) {
-    console.error("Error checking testimonial rate limit", countError);
+  if (emailCount.error || ipCount.error) {
+    console.error(
+      "Error checking testimonial rate limit",
+      emailCount.error,
+      ipCount.error,
+    );
     return NextResponse.json({ error: "server-error" }, { status: 500 });
   }
-  if ((count ?? 0) >= RATE_LIMIT) {
+  if (
+    (emailCount.count ?? 0) >= RATE_LIMIT ||
+    (ipCount.count ?? 0) >= IP_RATE_LIMIT
+  ) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
 
@@ -62,6 +86,7 @@ export async function POST(req: NextRequest) {
     subject,
     rating,
     message,
+    ip_hash: ipHash,
   });
 
   if (insertError) {

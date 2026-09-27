@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
+import { IP_RATE_LIMIT, getIpHash, isHoneypotFilled } from "@/lib/spam-guard";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -27,6 +28,12 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid-json" }, { status: 400 });
+  }
+
+  // Bot: se responde como si todo hubiera ido bien para que no lo note, pero
+  // no se guarda nada ni se manda ningún correo.
+  if (isHoneypotFilled(body)) {
+    return NextResponse.json({ ok: true });
   }
 
   const nombre = String(body.nombre ?? "").trim();
@@ -67,7 +74,8 @@ export async function POST(req: NextRequest) {
   }
 
   const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
-  const [emailCount, phoneCount] = await Promise.all([
+  const ipHash = getIpHash(req);
+  const [emailCount, phoneCount, ipCount] = await Promise.all([
     supabaseAdmin
       .from("reservations")
       .select("id", { count: "exact", head: true })
@@ -79,19 +87,28 @@ export async function POST(req: NextRequest) {
       .eq("country_code", countryCode)
       .eq("telefono", telefono)
       .gte("created_at", since),
+    ipHash
+      ? supabaseAdmin
+          .from("reservations")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", since)
+      : { count: 0, error: null },
   ]);
 
-  if (emailCount.error || phoneCount.error) {
+  if (emailCount.error || phoneCount.error || ipCount.error) {
     console.error(
       "Error checking reservation rate limit",
       emailCount.error,
       phoneCount.error,
+      ipCount.error,
     );
     return NextResponse.json({ error: "server-error" }, { status: 500 });
   }
   if (
     (emailCount.count ?? 0) >= RATE_LIMIT ||
-    (phoneCount.count ?? 0) >= RATE_LIMIT
+    (phoneCount.count ?? 0) >= RATE_LIMIT ||
+    (ipCount.count ?? 0) >= IP_RATE_LIMIT
   ) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
@@ -107,6 +124,7 @@ export async function POST(req: NextRequest) {
       fecha,
       hora,
       nota: nota || null,
+      ip_hash: ipHash,
     });
 
   if (insertError) {

@@ -98,6 +98,7 @@ const emptyReviewForm = {
   rating: 0,
   resena: "",
   consentimiento: false,
+  website: "",
 };
 
 export default function TestimonialsClient({
@@ -165,6 +166,7 @@ export default function TestimonialsClient({
           rating: reviewForm.rating,
           message: reviewForm.resena,
           consentimiento: reviewForm.consentimiento,
+          website: reviewForm.website,
         }),
       });
 
@@ -301,6 +303,26 @@ export default function TestimonialsClient({
                     onSubmit={handleReviewSubmit}
                     className="flex flex-col gap-4"
                   >
+                    {/* Honeypot: fuera de pantalla y fuera del orden de Tab. Una persona
+                        nunca lo ve ni lo llena; si llega con texto, el servidor lo descarta. */}
+                    <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                      <label>
+                        No completar este campo
+                        <input
+                          type="text"
+                          name="website"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={reviewForm.website}
+                          onChange={(e) =>
+                            setReviewForm((f) => ({
+                              ...f,
+                              website: e.target.value,
+                            }))
+                          }
+                        />
+                      </label>
+                    </div>
                     <input
                       type="text"
                       aria-label="Nombre"

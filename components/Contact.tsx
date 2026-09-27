@@ -98,6 +98,7 @@ export default function Contact() {
     hora: "",
     nota: "",
     consentimiento: false,
+    website: "",
   };
   const [form, setForm] = useState(emptyForm);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -190,6 +191,21 @@ export default function Contact() {
           </h2>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+            {/* Honeypot: fuera de pantalla y fuera del orden de Tab. Una persona
+                nunca lo ve ni lo llena; si llega con texto, el servidor lo descarta. */}
+            <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+              <label>
+                No completar este campo
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={handleChange("website")}
+                />
+              </label>
+            </div>
             <input
               type="text"
               aria-label="Nombre"

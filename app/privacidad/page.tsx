@@ -37,7 +37,7 @@ export default function PrivacidadPage() {
           Política de Privacidad
         </h1>
         <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Última actualización: 19 de julio de 2026.
+          Última actualización: 27 de septiembre de 2026.
         </p>
 
         <Section title="Responsable del tratamiento">
@@ -69,6 +69,16 @@ export default function PrivacidadPage() {
             nombre, correo electrónico, materia, calificación y el texto de
             tu reseña.
           </p>
+          <p>
+            <strong className="text-[var(--text)]">
+              Protección contra abuso:
+            </strong>{" "}
+            al enviar cualquiera de los dos formularios guardamos una huella
+            cifrada de tu dirección IP (no la IP en sí), que solo sirve para
+            limitar cuántos envíos se hacen desde una misma conexión y evitar
+            el spam automatizado. No permite identificarte ni saber tu
+            ubicación.
+          </p>
         </Section>
 
         <Section title="Para qué usamos tus datos">
@@ -84,7 +94,9 @@ export default function PrivacidadPage() {
         <Section title="Base legal">
           <p>
             Tu consentimiento explícito, otorgado al marcar la casilla de
-            aceptación antes de enviar cada formulario.
+            aceptación antes de enviar cada formulario. La huella de la IP se
+            trata por interés legítimo: proteger el sitio y sus formularios
+            frente al envío masivo automatizado.
           </p>
         </Section>
 
