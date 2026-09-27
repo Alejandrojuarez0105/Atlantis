@@ -1,6 +1,4 @@
-"use client";
-
-import { motion } from "motion/react";
+import Reveal from "@/components/Reveal";
 
 const plans = [
   {
@@ -67,14 +65,7 @@ export default function Services() {
 
       <div className="relative mx-auto mt-14 grid max-w-6xl gap-8 md:grid-cols-3 md:gap-6 md:pt-10">
         {plans.map((plan) => (
-          <motion.div
-            key={plan.hours}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-            className="relative md:h-full"
-          >
+          <Reveal key={plan.hours} className="relative md:h-full">
             {plan.popular && (
               <div className="mx-auto w-fit rounded-t-xl bg-[var(--bg-input)] px-6 py-2 text-sm font-semibold text-[var(--bg-band)] md:absolute md:inset-x-0 md:-top-10">
                 Más popular
@@ -94,7 +85,7 @@ export default function Services() {
                 {plan.description}
               </p>
             </div>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "motion/react";
+import Reveal from "@/components/Reveal";
 import { useTheme } from "@/lib/theme-context";
 import { useDialogFocus } from "@/lib/use-dialog-focus";
 
@@ -184,12 +184,7 @@ export default function Contact() {
       className="px-6 pb-16 pt-4 md:px-12 md:pb-24 md:pt-6 lg:px-16"
     >
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
-        >
+        <Reveal>
           <h2 className="text-2xl font-bold text-[var(--text)] md:text-4xl">
             Solicitud de Reserva
           </h2>
@@ -353,13 +348,10 @@ export default function Contact() {
               {status === "sending" ? "Enviando..." : "Enviar solicitud"}
             </button>
           </form>
-        </motion.div>
+        </Reveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+        <Reveal
+          delay={0.1}
           className="rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] p-8 text-[var(--on-band)] md:p-10"
         >
           <h3 className="text-xl font-bold md:text-2xl">Contacto</h3>
@@ -421,7 +413,7 @@ export default function Contact() {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </Reveal>
       </div>
 
       {submitted &&

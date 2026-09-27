@@ -2,7 +2,6 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "motion/react";
 import type { Testimonial } from "@/lib/testimonials";
 import { useDialogFocus } from "@/lib/use-dialog-focus";
 
@@ -213,12 +212,9 @@ export default function TestimonialsClient({
 
             <div aria-live="polite" className="grid flex-1 gap-6 md:grid-cols-3">
               {visible.map((t, i) => (
-                <motion.div
+                <div
                   key={`${t.name}-${start}-${i}`}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className={`rounded-2xl bg-[var(--bg-band)] p-6 text-[var(--on-band)] md:p-10 ${
+                  className={`fade-up rounded-2xl bg-[var(--bg-band)] p-6 text-[var(--on-band)] md:p-10 ${
                     i > 0 ? "hidden md:block" : ""
                   }`}
                 >
@@ -238,7 +234,7 @@ export default function TestimonialsClient({
                       <Star key={starIndex} />
                     ))}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 

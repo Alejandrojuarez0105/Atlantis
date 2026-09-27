@@ -1,6 +1,4 @@
-"use client";
-
-import { motion } from "motion/react";
+import Reveal from "@/components/Reveal";
 
 const steps = [
   {
@@ -34,12 +32,9 @@ export default function HowItWorks() {
 
       <div className="relative mx-auto mt-12 grid max-w-6xl gap-6 md:grid-cols-3 md:gap-8">
         {steps.map((step) => (
-          <motion.div
+          <Reveal
             key={step.number}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, delay: step.number * 0.1 }}
+            delay={step.number * 0.1}
             className="rounded-2xl bg-[var(--bg-card)] p-6 md:p-10 md:min-h-[300px]"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--bg-band)] text-sm font-bold text-[var(--on-band)] md:h-10 md:w-10 md:text-base">
@@ -51,7 +46,7 @@ export default function HowItWorks() {
             <p className="mt-3 text-[var(--text-muted)] md:text-lg">
               {step.description}
             </p>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
 
