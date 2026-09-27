@@ -4,16 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import type { Testimonial } from "@/lib/testimonials";
 import { useDialogFocus } from "@/lib/use-dialog-focus";
-
-const subjects = [
-  "Matemática I",
-  "Matemática II",
-  "Matemática Numérica",
-  "Matemática Discreta",
-  "Estadística I",
-  "Lenguajes de Programación",
-  "Marketing Estratégico y Operativo",
-];
+import { MAX_LENGTH, SUBJECTS } from "@/lib/form-options";
 
 function Star() {
   return (
@@ -328,6 +319,7 @@ export default function TestimonialsClient({
                       aria-label="Nombre"
                       placeholder="Nombre"
                       required
+                      maxLength={MAX_LENGTH.name}
                       value={reviewForm.nombre}
                       onChange={(e) =>
                         setReviewForm((f) => ({
@@ -342,6 +334,7 @@ export default function TestimonialsClient({
                       aria-label="Correo"
                       placeholder="Correo (no se publica, solo para confirmarte)"
                       required
+                      maxLength={MAX_LENGTH.email}
                       value={reviewForm.email}
                       onChange={(e) =>
                         setReviewForm((f) => ({
@@ -370,7 +363,7 @@ export default function TestimonialsClient({
                       <option value="" disabled className="text-black">
                         Materia
                       </option>
-                      {subjects.map((subject) => (
+                      {SUBJECTS.map((subject) => (
                         <option
                           key={subject}
                           value={subject}
@@ -399,6 +392,7 @@ export default function TestimonialsClient({
                       placeholder="Tu reseña"
                       required
                       rows={4}
+                      maxLength={MAX_LENGTH.review}
                       value={reviewForm.resena}
                       onChange={(e) =>
                         setReviewForm((f) => ({

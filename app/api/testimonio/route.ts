@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
 import { IP_RATE_LIMIT, getIpHash, isHoneypotFilled } from "@/lib/spam-guard";
+import { MAX_LENGTH, SUBJECTS } from "@/lib/form-options";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const name = String(body.name ?? "").trim();
+  // Una sola línea: el nombre va en el asunto del correo de aviso.
+  const name = String(body.name ?? "").replace(/\s+/g, " ").trim();
   const email = String(body.email ?? "").trim();
   const subject = String(body.subject ?? "").trim();
   const rating = Number(body.rating ?? 0);
@@ -44,7 +46,15 @@ export async function POST(req: NextRequest) {
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "invalid-email" }, { status: 400 });
   }
-  if (rating < 1 || rating > 5) {
+  if (
+    name.length > MAX_LENGTH.name ||
+    email.length > MAX_LENGTH.email ||
+    message.length > MAX_LENGTH.review ||
+    !SUBJECTS.includes(subject)
+  ) {
+    return NextResponse.json({ error: "invalid-fields" }, { status: 400 });
+  }
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return NextResponse.json({ error: "invalid-rating" }, { status: 400 });
   }
 
@@ -94,13 +104,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "server-error" }, { status: 500 });
   }
 
+  // La confirmación va a la dirección que escribió quien envió el formulario,
+  // que puede no ser suya: sin texto libre (solo la materia, validada contra
+  // la lista), para que nadie use el sitio para mandar mensajes a terceros.
   try {
     await resend.emails.send({
       from: FROM,
       to: email,
       replyTo: CLIENT_EMAIL,
       subject: "¡Gracias por tu testimonio! - Atlantis",
-      text: `¡Hola ${name}!\n\nRecibimos tu testimonio sobre ${subject}. Lo revisaremos antes de publicarlo en la página.\n\n— Atlantis Tutorías Académicas`,
+      text: `¡Hola!\n\nRecibimos tu testimonio sobre ${subject}. Lo revisaremos antes de publicarlo en la página.\n\n— Atlantis Tutorías Académicas`,
     });
 
     await resend.emails.send({

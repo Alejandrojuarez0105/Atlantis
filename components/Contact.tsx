@@ -5,31 +5,13 @@ import { createPortal } from "react-dom";
 import Reveal from "@/components/Reveal";
 import { useTheme } from "@/lib/theme-context";
 import { useDialogFocus } from "@/lib/use-dialog-focus";
+import { MAX_LENGTH, SUBJECTS, TIME_SLOTS } from "@/lib/form-options";
 
 const paymentMethods = [
   { label: "Bizum", icon: "bizum" },
   { label: "Efectivo", icon: "efectivo" },
   { label: "Transferencia Bancaria", icon: "transferencia" },
 ] as const;
-
-const subjects = [
-  "Matemática I",
-  "Matemática II",
-  "Matemática Numérica",
-  "Matemática Discreta",
-  "Estadística I",
-  "Lenguajes de Programación",
-  "Marketing Estratégico y Operativo",
-];
-
-const timeSlots = (() => {
-  const slots: string[] = [];
-  for (let h = 10; h <= 20; h++) {
-    slots.push(`${String(h).padStart(2, "0")}:00`);
-    if (h < 20) slots.push(`${String(h).padStart(2, "0")}:30`);
-  }
-  return slots;
-})();
 
 function inputClass() {
   return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] [color-scheme:light]";
@@ -155,7 +137,11 @@ export default function Contact() {
               ? "Revisa el código de país, ej. +34."
               : data?.error === "invalid-email"
                 ? "Revisa el correo ingresado."
-                : "Revisa los datos del formulario.",
+                : data?.error === "invalid-date"
+                  ? "Elige una fecha desde hoy hasta dentro de un año."
+                  : data?.error === "missing-fields"
+                    ? "Completa todos los campos, incluida la fecha."
+                    : "Revisa los datos del formulario.",
         );
         return;
       }
@@ -211,6 +197,7 @@ export default function Contact() {
               aria-label="Nombre"
               placeholder="Nombre"
               required
+              maxLength={MAX_LENGTH.name}
               value={form.nombre}
               onChange={handleChange("nombre")}
               className={inputClass()}
@@ -220,6 +207,7 @@ export default function Contact() {
               aria-label="Correo"
               placeholder="Correo"
               required
+              maxLength={MAX_LENGTH.email}
               value={form.email}
               onChange={handleChange("email")}
               className={inputClass()}
@@ -260,7 +248,7 @@ export default function Contact() {
               <option value="" disabled className="text-black">
                 Materia
               </option>
-              {subjects.map((subject) => (
+              {SUBJECTS.map((subject) => (
                 <option key={subject} value={subject} className="text-black">
                   {subject}
                 </option>
@@ -307,7 +295,7 @@ export default function Contact() {
                 <option value="" disabled className="text-black">
                   Hora
                 </option>
-                {timeSlots.map((slot) => (
+                {TIME_SLOTS.map((slot) => (
                   <option key={slot} value={slot} className="text-black">
                     {slot}
                   </option>
@@ -318,6 +306,7 @@ export default function Contact() {
               aria-label="Nota (opcional)"
               placeholder="Nota (opcional)"
               rows={5}
+              maxLength={MAX_LENGTH.note}
               value={form.nota}
               onChange={handleChange("nota")}
               className={`${inputClass()} resize-none`}

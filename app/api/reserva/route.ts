@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
 import { IP_RATE_LIMIT, getIpHash, isHoneypotFilled } from "@/lib/spam-guard";
+import { MAX_LENGTH, SUBJECTS, TIME_SLOTS } from "@/lib/form-options";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,6 +23,23 @@ function isValidCountryCode(code: string) {
   return /^\+[0-9]{1,4}$/.test(code);
 }
 
+// Fecha "YYYY-MM-DD" real, desde hoy (hora de España) hasta un año adelante.
+function isValidDate(fecha: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return false;
+  const date = new Date(`${fecha}T00:00:00Z`);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== fecha
+  ) {
+    return false;
+  }
+  const madridDay = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(d);
+  const now = new Date();
+  const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+  return fecha >= madridDay(now) && fecha <= madridDay(inOneYear);
+}
+
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -36,7 +54,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const nombre = String(body.nombre ?? "").trim();
+  // Una sola línea: el nombre va en el asunto del correo de aviso.
+  const nombre = String(body.nombre ?? "").replace(/\s+/g, " ").trim();
   const email = String(body.email ?? "").trim();
   const countryCode = String(body.countryCode ?? "").trim();
   const telefono = String(body.telefono ?? "").trim();
@@ -59,6 +78,18 @@ export async function POST(req: NextRequest) {
   }
   if (!consentimiento) {
     return NextResponse.json({ error: "missing-consent" }, { status: 400 });
+  }
+  if (
+    nombre.length > MAX_LENGTH.name ||
+    email.length > MAX_LENGTH.email ||
+    nota.length > MAX_LENGTH.note ||
+    !SUBJECTS.includes(materia) ||
+    !TIME_SLOTS.includes(hora)
+  ) {
+    return NextResponse.json({ error: "invalid-fields" }, { status: 400 });
+  }
+  if (!isValidDate(fecha)) {
+    return NextResponse.json({ error: "invalid-date" }, { status: 400 });
   }
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "invalid-email" }, { status: 400 });
@@ -143,13 +174,23 @@ export async function POST(req: NextRequest) {
     .filter(Boolean)
     .join("\n");
 
+  // La confirmación va a la dirección que escribió quien envió el formulario,
+  // que puede no ser suya: solo lleva datos validados contra una lista (nada
+  // de texto libre como nombre o nota), para que nadie pueda usar el sitio
+  // para mandar mensajes arbitrarios a terceros desde nuestro dominio.
+  const confirmation = [
+    `Materia: ${materia}`,
+    `Fecha: ${fecha}`,
+    `Hora: ${hora}`,
+  ].join("\n");
+
   try {
     await resend.emails.send({
       from: FROM,
       to: email,
       replyTo: CLIENT_EMAIL,
       subject: "Hemos recibido tu solicitud de reserva - Atlantis",
-      text: `¡Hola ${nombre}!\n\nRecibimos tu solicitud de reserva. Te responderemos lo antes posible.\n\n${summary}\n\n— Atlantis Tutorías Académicas`,
+      text: `¡Hola!\n\nRecibimos tu solicitud de reserva. Te responderemos lo antes posible.\n\n${confirmation}\n\n— Atlantis Tutorías Académicas`,
     });
 
     await resend.emails.send({
