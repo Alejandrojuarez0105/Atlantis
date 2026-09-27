@@ -66,16 +66,18 @@ function StarPicker({
 function ArrowButton({
   direction,
   onClick,
+  className = "",
 }: {
   direction: "prev" | "next";
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={direction === "prev" ? "Testimonio anterior" : "Siguiente testimonio"}
-      className="flex h-10 w-10 flex-none items-center justify-center rounded-full text-[var(--text)] transition-colors hover:text-[var(--accent-text)]"
+      className={`flex h-10 w-10 flex-none items-center justify-center rounded-full text-[var(--text)] transition-colors hover:text-[var(--accent-text)] ${className}`}
     >
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-6 w-6">
         <path
@@ -108,7 +110,10 @@ export default function TestimonialsClient({
   const [start, setStart] = useState(0);
   const total = items.length;
   const visibleCount = Math.min(3, total);
-  const canPage = total > 3;
+  // En móvil se ve 1 tarjeta y en desktop 3, así que las flechas hacen falta
+  // en móvil desde 2 testimonios, pero en desktop solo desde 4.
+  const canPage = total > 1;
+  const arrowClass = total > 3 ? "" : "md:hidden";
   const visible = Array.from(
     { length: visibleCount },
     (_, i) => items[(start + i) % total],
@@ -202,7 +207,9 @@ export default function TestimonialsClient({
       {total > 0 && (
         <>
           <div className="mx-auto mt-10 flex max-w-7xl items-center gap-2 md:gap-6">
-            {canPage && <ArrowButton direction="prev" onClick={prev} />}
+            {canPage && (
+              <ArrowButton direction="prev" onClick={prev} className={arrowClass} />
+            )}
 
             <div aria-live="polite" className="grid flex-1 gap-6 md:grid-cols-3">
               {visible.map((t, i) => (
@@ -235,7 +242,9 @@ export default function TestimonialsClient({
               ))}
             </div>
 
-            {canPage && <ArrowButton direction="next" onClick={next} />}
+            {canPage && (
+              <ArrowButton direction="next" onClick={next} className={arrowClass} />
+            )}
           </div>
 
           <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
