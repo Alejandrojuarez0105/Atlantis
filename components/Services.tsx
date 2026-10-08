@@ -100,7 +100,7 @@ export default function Services() {
         </ul>
 
         <a
-          href="#contacto"
+          href="#datos-contacto"
           className="mt-6 inline-block text-[var(--accent-text)] underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current"
         >
           Contáctanos para consultar precios

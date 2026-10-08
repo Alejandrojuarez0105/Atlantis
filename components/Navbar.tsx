@@ -5,11 +5,14 @@ import Image from "next/image";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/lib/theme-context";
 
+// `id` es la sección que marca el link como activo al hacer scroll; `href`
+// es adonde lleva. Contacto lleva a la tarjeta de datos, no al formulario
+// (en móvil van uno debajo del otro), pero se marca en toda la sección.
 const sections = [
-  { id: "inicio", label: "Inicio" },
-  { id: "servicios", label: "Servicios" },
-  { id: "testimonios", label: "Testimonios" },
-  { id: "contacto", label: "Contacto" },
+  { id: "inicio", href: "#inicio", label: "Inicio" },
+  { id: "servicios", href: "#servicios", label: "Servicios" },
+  { id: "testimonios", href: "#testimonios", label: "Testimonios" },
+  { id: "contacto", href: "#datos-contacto", label: "Contacto" },
 ];
 
 export default function Navbar() {
@@ -69,10 +72,10 @@ export default function Navbar() {
         </a>
 
         <div className="hidden md:flex items-center gap-3">
-          {sections.map(({ id, label }) => (
+          {sections.map(({ id, href, label }) => (
             <a
               key={id}
-              href={`#${id}`}
+              href={href}
               aria-current={active === id ? "location" : undefined}
               className={`text-base px-6 py-3 rounded-full transition-colors ${
                 active === id
@@ -124,10 +127,10 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col px-6 pb-4 bg-[var(--bg-base)] border-b border-[var(--border)]">
-          {sections.map(({ id, label }) => (
+          {sections.map(({ id, href, label }) => (
             <a
               key={id}
-              href={`#${id}`}
+              href={href}
               onClick={() => setOpen(false)}
               aria-current={active === id ? "location" : undefined}
               className={`py-2.5 text-sm transition-colors ${

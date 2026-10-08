@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from "react";
 // entra en pantalla — mismo efecto que tenía `whileInView` de motion. La
 // transición vive en globals.css (.reveal).
 export default function Reveal({
+  id,
   children,
   className = "",
   delay = 0,
 }: {
+  id?: string;
   children: React.ReactNode;
   className?: string;
   delay?: number;
@@ -35,6 +37,7 @@ export default function Reveal({
 
   return (
     <div
+      id={id}
       ref={ref}
       data-visible={visible || undefined}
       className={`reveal ${className}`}

@@ -356,6 +356,7 @@ export default function Contact() {
         </Reveal>
 
         <Reveal
+          id="datos-contacto"
           delay={0.1}
           className="rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] p-8 text-[var(--on-band)] md:p-10"
         >
