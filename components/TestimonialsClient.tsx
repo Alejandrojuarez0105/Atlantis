@@ -272,10 +272,15 @@ export default function TestimonialsClient({
                     ✓
                   </span>
                   <h3 className="text-xl font-bold text-[var(--text)]">
-                    ¡Gracias!
+                    Revisa tu correo
                   </h3>
                   <p className="text-[var(--text-muted)]">
-                    Revisaremos tu reseña antes de publicarla.
+                    Te enviamos un enlace a{" "}
+                    <strong className="break-all text-[var(--text)]">
+                      {reviewForm.email}
+                    </strong>{" "}
+                    para confirmar tu testimonio. Si no lo ves, revisa la
+                    carpeta de spam.
                   </p>
                   <button
                     onClick={closeModal}
