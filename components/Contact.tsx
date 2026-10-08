@@ -153,7 +153,9 @@ export default function Contact() {
       setSubmitted(true);
     } catch {
       setStatus("error");
-      setErrorMsg("No pudimos enviar tu solicitud. Intenta de nuevo.");
+      setErrorMsg(
+        "No pudimos enviar tu solicitud. Intenta de nuevo o escríbenos por WhatsApp.",
+      );
     }
   };
 

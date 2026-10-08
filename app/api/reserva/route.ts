@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
 
-  const { error: insertError } = await supabaseAdmin
+  const { data: inserted, error: insertError } = await supabaseAdmin
     .from("reservations")
     .insert({
       nombre,
@@ -156,7 +156,9 @@ export async function POST(req: NextRequest) {
       hora,
       nota: nota || null,
       ip_hash: ipHash,
-    });
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     console.error("Error inserting reservation", insertError);
@@ -184,24 +186,36 @@ export async function POST(req: NextRequest) {
     `Hora: ${hora}`,
   ].join("\n");
 
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: email,
-      replyTo: CLIENT_EMAIL,
-      subject: "Hemos recibido tu solicitud de reserva - Atlantis",
-      text: `¡Hola!\n\nRecibimos tu solicitud de reserva. Te responderemos lo antes posible.\n\n${confirmation}\n\n— Atlantis Tutorías Académicas`,
-    });
+  // Resend no lanza excepciones: devuelve { error }. El aviso al cliente va
+  // primero porque es el que importa: si falla, nadie se enteraría de la
+  // reserva, así que se borra (para que no cuente en el límite por hora) y se
+  // devuelve error para que la persona reintente o escriba por WhatsApp.
+  const { error: notifyError } = await resend.emails.send({
+    from: FROM,
+    to: CLIENT_EMAIL,
+    replyTo: email,
+    subject: `Nueva solicitud de reserva — ${nombre}`,
+    text: summary,
+  });
 
-    await resend.emails.send({
-      from: FROM,
-      to: CLIENT_EMAIL,
-      replyTo: email,
-      subject: `Nueva solicitud de reserva — ${nombre}`,
-      text: summary,
-    });
-  } catch (err) {
-    console.error("Error sending reservation emails", err);
+  if (notifyError) {
+    console.error("Error sending reservation notification", notifyError);
+    await supabaseAdmin.from("reservations").delete().eq("id", inserted.id);
+    return NextResponse.json({ error: "server-error" }, { status: 500 });
+  }
+
+  // El acuse a la persona es secundario: si falla, la reserva ya le llegó al
+  // cliente, que la contactará igual.
+  const { error: confirmationError } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    replyTo: CLIENT_EMAIL,
+    subject: "Hemos recibido tu solicitud de reserva - Atlantis",
+    text: `¡Hola!\n\nRecibimos tu solicitud de reserva. Te responderemos lo antes posible.\n\n${confirmation}\n\n— Atlantis Tutorías Académicas`,
+  });
+
+  if (confirmationError) {
+    console.error("Error sending reservation confirmation", confirmationError);
   }
 
   return NextResponse.json({ ok: true });
