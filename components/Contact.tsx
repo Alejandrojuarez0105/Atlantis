@@ -364,21 +364,20 @@ export default function Contact() {
           <ul className="mt-6 space-y-4">
             <li className="flex items-center gap-3">
               <PhoneIcon />
-              <span>
+              <span className="flex flex-col items-start gap-1">
                 <a
                   href="https://wa.me/34695102093"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="whitespace-nowrap hover:underline"
                 >
                   +34 695 102 093
-                </a>{" "}
-                /{" "}
+                </a>
                 <a
                   href="https://wa.me/34634739385"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="whitespace-nowrap hover:underline"
                 >
                   +34 634 739 385
                 </a>
