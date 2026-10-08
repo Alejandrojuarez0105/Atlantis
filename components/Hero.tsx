@@ -53,7 +53,7 @@ export default function Hero() {
       <LogoGraphic />
 
       <div className="px-6 md:px-12 lg:px-16">
-        <h1 className="fade-up text-5xl md:text-7xl font-bold text-[var(--accent-text)] max-w-2xl md:max-w-none">
+        <h1 className="fade-up text-4xl sm:text-5xl md:text-7xl font-bold text-[var(--accent-text)] max-w-2xl md:max-w-none">
           <span className="md:whitespace-nowrap">Impulsa tu éxito académico</span>
           <br className="hidden md:block" />
           <span className="md:whitespace-nowrap"> con tutorías personalizadas</span>
