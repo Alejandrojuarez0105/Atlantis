@@ -400,7 +400,7 @@ export default function Contact() {
         <Reveal
           id="datos-contacto"
           delay={0.1}
-          className="rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] p-8 text-[var(--on-band)] md:p-10"
+          className="rounded-2xl bg-[var(--bg-band)] [--focus-ring:var(--on-band)] p-8 text-[var(--on-band)] md:mt-[4.5rem] md:self-start md:p-10"
         >
           <h3 className="text-xl font-bold md:text-2xl">Contacto</h3>
           <ul className="mt-6 space-y-4">
