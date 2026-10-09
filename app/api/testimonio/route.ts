@@ -14,6 +14,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const RATE_LIMIT = 2;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
+// Tope de testimonios por hora entre todos los visitantes. Los límites por
+// correo e IP no frenan a quien cambia de IP en cada envío; este sí, y así no
+// se gasta la cuota de Resend que también usan los avisos de reservas.
+const GLOBAL_RATE_LIMIT = 10;
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -64,7 +68,11 @@ export async function POST(req: NextRequest) {
 
   const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
   const ipHash = getIpHash(req);
-  const [emailCount, ipCount] = await Promise.all([
+  const [globalCount, emailCount, ipCount] = await Promise.all([
+    supabaseAdmin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", since),
     supabaseAdmin
       .from("testimonials")
       .select("id", { count: "exact", head: true })
@@ -79,13 +87,17 @@ export async function POST(req: NextRequest) {
       : { count: 0, error: null },
   ]);
 
-  if (emailCount.error || ipCount.error) {
+  if (globalCount.error || emailCount.error || ipCount.error) {
     console.error(
       "Error checking testimonial rate limit",
+      globalCount.error,
       emailCount.error,
       ipCount.error,
     );
     return NextResponse.json({ error: "server-error" }, { status: 500 });
+  }
+  if ((globalCount.count ?? 0) >= GLOBAL_RATE_LIMIT) {
+    return NextResponse.json({ error: "busy" }, { status: 429 });
   }
   if (
     (emailCount.count ?? 0) >= RATE_LIMIT ||

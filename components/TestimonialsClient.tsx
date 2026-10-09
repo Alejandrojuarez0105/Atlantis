@@ -162,9 +162,12 @@ export default function TestimonialsClient({
       });
 
       if (res.status === 429) {
+        const { error } = await res.json().catch(() => ({ error: "" }));
         setReviewStatus("error");
         setReviewError(
-          "Has alcanzado el límite de 2 testimonios por hora. Intenta de nuevo más tarde.",
+          error === "busy"
+            ? "Ahora mismo estamos recibiendo muchos testimonios. Intenta de nuevo en un rato."
+            : "Has alcanzado el límite de 2 testimonios por hora. Intenta de nuevo más tarde.",
         );
         return;
       }
