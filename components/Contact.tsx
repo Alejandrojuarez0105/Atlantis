@@ -13,13 +13,25 @@ const paymentMethods = [
   { label: "Transferencia Bancaria", icon: "transferencia" },
 ] as const;
 
+const CONTACT_MESSAGE =
+  "Hola, les escribo debido a que me interesan las tutorías de Atlantis y me gustaría recibir más información.";
+const WHATSAPP_TEXT = `?text=${encodeURIComponent(CONTACT_MESSAGE)}`;
+const MAILTO_PARAMS = `?subject=${encodeURIComponent(
+  "Información sobre tutorías",
+)}&body=${encodeURIComponent(CONTACT_MESSAGE)}`;
+
 function inputClass() {
   return "w-full rounded-lg bg-[var(--bg-input)] px-4 py-3 text-[var(--bg-band)] placeholder:text-gray-600 outline-none transition-shadow focus:ring-2 focus:ring-[var(--accent)] [color-scheme:light]";
 }
 
 function PhoneIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="h-5 w-5 flex-none"
+    >
       <path
         d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"
         stroke="currentColor"
@@ -32,7 +44,12 @@ function PhoneIcon() {
 
 function MailIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="h-5 w-5 flex-none"
+    >
       <rect
         x="3"
         y="5"
@@ -55,14 +72,25 @@ function MailIcon() {
 
 function PinIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5 flex-none">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="h-5 w-5 flex-none"
+    >
       <path
         d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21z"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="9.5" r="2.3" stroke="currentColor" strokeWidth="1.6" />
+      <circle
+        cx="12"
+        cy="9.5"
+        r="2.3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }
@@ -181,7 +209,10 @@ export default function Contact() {
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {/* Honeypot: fuera de pantalla y fuera del orden de Tab. Una persona
                 nunca lo ve ni lo llena; si llega con texto, el servidor lo descarta. */}
-            <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="absolute -left-[9999px] h-px w-px overflow-hidden"
+            >
               <label>
                 No completar este campo
                 <input
@@ -304,6 +335,15 @@ export default function Contact() {
                 ))}
               </select>
             </div>
+            {(form.fecha || form.hora) && (
+              <p
+                aria-live="polite"
+                className="-mt-1 text-sm text-[var(--text-muted)]"
+              >
+                La fecha y hora son orientativas: indícanos cuándo te vendría
+                bien y nos pondremos en contacto contigo para confirmarla.
+              </p>
+            )}
             <textarea
               aria-label="Nota (opcional)"
               placeholder="Nota (opcional)"
@@ -368,7 +408,7 @@ export default function Contact() {
               <PhoneIcon />
               <span className="flex flex-col items-start gap-1">
                 <a
-                  href="https://wa.me/34695102093"
+                  href={`https://wa.me/34695102093${WHATSAPP_TEXT}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whitespace-nowrap hover:underline"
@@ -376,7 +416,7 @@ export default function Contact() {
                   +34 695 102 093
                 </a>
                 <a
-                  href="https://wa.me/34634739385"
+                  href={`https://wa.me/34634739385${WHATSAPP_TEXT}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whitespace-nowrap hover:underline"
@@ -388,7 +428,7 @@ export default function Contact() {
             <li className="flex items-center gap-3">
               <MailIcon />
               <a
-                href="mailto:atlantis.tutorias@gmail.com"
+                href={`mailto:atlantis.tutorias@gmail.com${MAILTO_PARAMS}`}
                 className="hover:underline"
               >
                 atlantis.tutorias@gmail.com
